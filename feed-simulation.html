@@ -100,7 +100,7 @@
 <script src="assets/mock/shell.js"></script>
 <script src="assets/mock/planning-data.js"></script>
 <script>
-AqMock.init({ active: 'feed', title: 'Feed Intelligence · Feed Simulation Planning', branches: 'feature/feed-actual-lines + feature/28-feed-inventory-ledger (feed catalog, bag_weight_kg)' });
+AqMock.init({ active: 'feed', title: 'Feed Simulation', branches: 'feature/feed-actual-lines + feature/28-feed-inventory-ledger (feed catalog, bag_weight_kg)' });
 AqMock.screens(['plans', 'plan'], 'plan');
 
 (function () {
@@ -124,6 +124,7 @@ AqMock.screens(['plans', 'plan'], 'plan');
   }
   var code = fromPlan && payload.feed ? payload.feed.code : 'FS-202611-0004';
   var cages = payload.cohorts.map(function (c) { return Object.assign({ regime: 'Full', ov: {}, locked: fromPlan }, c); });
+  if (!(payload.feed && payload.feed.complete)) cages.forEach(function (c) { c.ov[1] = { feed: '' }; });
   var active = 0, open = {};
 
   function bracket(c, mbw) {
@@ -139,7 +140,7 @@ AqMock.screens(['plans', 'plan'], 'plan');
       var sr = o.sr !== undefined ? o.sr : 100 - (100 - c.srEnd) * d / c.days;
       var br = bracket(c, mbw);
       var rate = o.rate !== undefined ? o.rate : br[3];
-      var feed = o.feed || br[2];
+      var feed = o.feed !== undefined ? o.feed : br[2];
       var pop = Math.round(c.stocking * sr / 100), bio = pop * mbw / 1000, kg = bio * rate / 100 * (1 - red);
       cum += kg;
       var gain = bio - c.stocking * c.w0 / 1000;
@@ -147,13 +148,20 @@ AqMock.screens(['plans', 'plan'], 'plan');
     }
     return rows;
   }
-  function byFeed(c) { var by = {}; simulate(c).forEach(function (r) { by[r.feed] = (by[r.feed] || 0) + r.kg; }); return by; }
+  function byFeed(c) { var by = {}; simulate(c).forEach(function (r) { if (r.feed) by[r.feed] = (by[r.feed] || 0) + r.kg; }); return by; }
+  function missingDays(c) { return simulate(c).filter(function (r) { return !r.feed; }); }
+  function feedFlag(c) {
+    var miss = missingDays(c);
+    if (!miss.length) return '<span class="badge bg-label-success ms-2"><i class="bx bx-check-circle me-1"></i>Complete</span>';
+    var days = miss.slice(0, 4).map(function (r) { return r.d; }).join(', ');
+    return '<span class="badge bg-label-warning ms-2" title="No feed on DOC ' + days + (miss.length > 4 ? '…' : '') + '"><i class="bx bx-error-circle me-1"></i>Feed missing</span>';
+  }
   function costOf(by) { return Object.keys(by).reduce(function (s, f) { return s + by[f] * (prices[f] || 0); }, 0); }
   function canEdit() { return ['super_admin', 'ops_manager'].indexOf(AqMock.role()) > -1; }
 
   function tabs() {
     var t = cages.map(function (c, i) {
-      return '<li class="nav-item"><a class="nav-link text-nowrap' + (i === active ? ' active' : '') + '" href="#plan" data-tab="' + i + '"><i class="bx ' + (c.phase === 'Nursery' ? 'bx-cube' : 'bx-shape-square') + ' me-1"></i>' + c.name + '</a></li>';
+      return '<li class="nav-item"><a class="nav-link text-nowrap' + (i === active ? ' active' : '') + '" href="#plan" data-tab="' + i + '"><i class="bx ' + (c.phase === 'Nursery' ? 'bx-cube' : 'bx-shape-square') + ' me-1"></i>' + c.name + feedFlag(c) + '</a></li>';
     });
     t.push('<li class="nav-item"><a class="nav-link text-nowrap' + (active === cages.length ? ' active' : '') + '" href="#plan" data-tab="' + cages.length + '"><i class="bx bx-cart me-1"></i>Procurement</a></li>');
     t.push('<li class="nav-item"><a class="nav-link text-nowrap' + (active === cages.length + 1 ? ' active' : '') + '" href="#plan" data-tab="' + (cages.length + 1) + '"><i class="bx bx-bar-chart-alt-2 me-1"></i>Compare cages</a></li>');
@@ -170,8 +178,10 @@ AqMock.screens(['plans', 'plan'], 'plan');
 
   function renderCage(c) {
     var rows = simulate(c), last = rows[rows.length - 1] || { cum: 0, pop: 0, bio: 0, fcr: null };
+    var miss = missingDays(c);
     var src = c.phase === 'Nursery' ? { w0: 'Seed size', w1: 'Transfer size', days: 'Nursery DOC', sr: 'Nursery SR' } : { w0: 'Nursery transfer size', w1: 'Size class target MBW', days: 'Size class DOC', sr: 'Size class SR' };
-    var html = '<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2"><h6 class="fw-bold text-primary mb-0 d-flex align-items-center"><i class="bx bx-cube me-2 fs-5"></i> Cage Header · ' + c.name + ' <span class="badge bg-label-secondary ms-2">' + c.phase + '</span></h6>' +
+    var html = (miss.length ? '<div class="alert alert-warning border-0"><i class="bx bx-error-circle me-2"></i><strong>This cage is not complete.</strong> Feed is not selected on ' + miss.length + ' day' + (miss.length === 1 ? '' : 's') + ' (DOC ' + miss.slice(0, 8).map(function (r) { return r.d; }).join(', ') + (miss.length > 8 ? ', …' : '') + ').</div>' : '') +
+      '<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2"><h6 class="fw-bold text-primary mb-0 d-flex align-items-center"><i class="bx bx-cube me-2 fs-5"></i> Cage Header · ' + c.name + ' <span class="badge bg-label-secondary ms-2">' + c.phase + '</span>' + feedFlag(c) + '</h6>' +
       '<div class="d-flex gap-2 edit-only">' + (c.locked ? '' : '<button class="btn btn-sm btn-outline-primary" id="c-dup"><i class="bx bx-copy me-1"></i> Duplicate cage</button>') +
       '<button class="btn btn-sm btn-outline-danger" id="c-reset"' + (Object.keys(c.ov).length ? '' : ' disabled') + '><i class="bx bx-reset me-1"></i> Reset grid edits</button></div></div>' +
       (c.locked ? '<p class="small text-muted"><i class="bx bx-lock-alt me-1"></i>Fields with a lock come from Commodity Planning and are read-only here. Change them in the plan, then generate again. Feeding regime stays editable.</p>' : '') +
@@ -199,7 +209,7 @@ AqMock.screens(['plans', 'plan'], 'plan');
         '<td><input type="number" step="0.1" class="form-control form-control-sm" value="' + r.mbw.toFixed(1) + '" data-d="' + r.d + '" data-f="mbw"' + lockDis + ' aria-label="MBW day ' + r.d + '"></td>' +
         '<td>' + r.bio.toFixed(2) + '</td>' +
         '<td><input type="number" step="0.1" class="form-control form-control-sm" value="' + r.rate + '" data-d="' + r.d + '" data-f="rate"' + dis + ' aria-label="Feed rate day ' + r.d + '"></td>' +
-        '<td><select class="form-select form-select-sm" data-d="' + r.d + '" data-f="feed"' + dis + ' aria-label="Feed day ' + r.d + '">' + Object.keys(FEEDS).map(function (f) { return '<option' + (f === r.feed ? ' selected' : '') + '>' + f + '</option>'; }).join('') + '</select></td>' +
+        '<td><select class="form-select form-select-sm' + (r.feed ? '' : ' is-invalid') + '" data-d="' + r.d + '" data-f="feed"' + dis + ' aria-label="Feed day ' + r.d + '"><option value=""' + (r.feed ? '' : ' selected') + '>Select feed</option>' + Object.keys(FEEDS).map(function (f) { return '<option' + (f === r.feed ? ' selected' : '') + '>' + f + '</option>'; }).join('') + '</select></td>' +
         '<td class="text-end">' + r.kg.toFixed(2) + '</td><td class="text-end">' + r.cum.toFixed(2) + '</td><td class="text-end">' + (r.fcr ? r.fcr.toFixed(2) : '-') + '</td></tr>';
     });
     html += '</tbody></table></div>';
@@ -218,7 +228,11 @@ AqMock.screens(['plans', 'plan'], 'plan');
       });
     });
     if ($('c-dup')) $('c-dup').onclick = function () { var n = JSON.parse(JSON.stringify(c)); n.key = 'm' + Date.now(); n.name = 'Cage ' + (10 + cages.length); cages.push(n); active = cages.length - 1; render(); };
-    $('c-reset').onclick = function () { c.ov = {}; render(); };
+    $('c-reset').onclick = function () {
+      c.ov = {};
+      if (!(payload.feed && payload.feed.complete)) c.ov[1] = { feed: '' };
+      render();
+    };
   }
 
   function procurement() {
@@ -241,7 +255,7 @@ AqMock.screens(['plans', 'plan'], 'plan');
       if (c.phase === 'Nursery') { nKg += kg; nCost += cost; } else { gKg += kg; gCost += cost; }
       var m = /^c(\d+)$/.exec(c.key); if (m) byClass[+m[1]] = { kg: kg, cost: cost, fcr: last && last.fcr ? Math.round(last.fcr * 100) / 100 : null };
     });
-    return { code: code, nurseryKg: nKg, nurseryCost: nCost, growKg: gKg, growCost: gCost, byClass: byClass, sig: payload.sig };
+    return { code: code, nurseryKg: nKg, nurseryCost: nCost, growKg: gKg, growCost: gCost, byClass: byClass, sig: payload.sig, complete: !cages.some(function (c) { return missingDays(c).length; }) };
   }
 
   function renderProc() {
@@ -293,8 +307,9 @@ AqMock.screens(['plans', 'plan'], 'plan');
   }
 
   function goBack() {
-    var out = { plan: payload.plan, feed: results() };
-    location.href = 'planning-calculator.html?d=' + P.encode(out) + '#calculator';
+    var res = results();
+    var out = { plan: payload.plan, feed: res };
+    location.href = 'planning-calculator.html?d=' + P.encode(out) + '#' + (res.complete ? 'step-3' : 'step-2');
   }
 
   function render() {

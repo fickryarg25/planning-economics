@@ -23,6 +23,7 @@ input[type=range]{width:100%}
 .cage-box{border:1px solid #d9dee3;border-radius:.5rem;padding:.5rem .75rem;min-width:150px;max-width:190px;cursor:pointer}
 .cage-box.sel{border-color:#03c3ec;background:#f0fbff}
 .cage-box.off{opacity:.55;cursor:default}
+.step-off{display:none !important}
 </style>
 </head>
 <body>
@@ -32,7 +33,7 @@ input[type=range]{width:100%}
 <div id="screen-baselines">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h4 class="mb-0">Planning Calculator</h4>
-    <a href="planning-calculator.html#calculator" class="btn btn-primary" data-roles="super_admin ops_manager management analyst"><i class="bx bx-plus me-1"></i> New simulation</a>
+    <a href="planning-calculator.html#step-1" class="btn btn-primary" data-roles="super_admin ops_manager management analyst"><i class="bx bx-plus me-1"></i> New simulation</a>
   </div>
   <div class="alert alert-info border-0 shadow-sm mb-4" data-roles="field_team" role="alert">
     <i class="bx bx-info-circle me-2"></i>Field Team only sees the technical part of baselines linked to a stocking (density, seed count, DOC, SR, FCR). Prices and margins are hidden.
@@ -55,7 +56,7 @@ input[type=range]{width:100%}
         <tbody>
           <tr><td>PLAN-202611-0004 <span class="text-muted">v1</span></td><td>Batch 2 Pompano two-phase</td><td>Bawal bintang</td><td>01 Dec 2026 - 31 Jul 2027</td><td>FS-202611-0002</td><td class="text-end font-monospace text-danger" data-hide-roles="field_team">-2.19%</td><td><span class="badge bg-label-success"><i class="bx bx-lock-alt"></i> Active</span> <span class="badge bg-label-danger"><i class="bx bx-error"></i> 1 cage conflict</span></td><td><a href="#baseline" class="btn btn-sm btn-outline-primary">View</a></td></tr>
           <tr><td>PLAN-202611-0005 <span class="text-muted">v1</span></td><td>Kerapu cantang</td><td>Kerapu cantang</td><td>10 Jan 2027 - 30 Jun 2027</td><td>FS-202611-0003</td><td class="text-end font-monospace" data-hide-roles="field_team">21.10%</td><td><span class="badge bg-label-success"><i class="bx bx-lock-alt"></i> Active</span></td><td><a href="#baseline" class="btn btn-sm btn-outline-primary">View</a></td></tr>
-          <tr><td>PLAN-202611-0006 <span class="text-muted">v1</span></td><td>Batch 3 Pompano</td><td>Bawal bintang</td><td>01 Mar 2027 - 30 Sep 2027</td><td><span class="badge bg-label-warning">Not generated</span></td><td class="text-end font-monospace" data-hide-roles="field_team">-</td><td><span class="badge bg-label-secondary"><i class="bx bx-edit"></i> Draft</span></td><td><a href="#calculator" class="btn btn-sm btn-outline-primary">Edit</a></td></tr>
+          <tr><td>PLAN-202611-0006 <span class="text-muted">v1</span></td><td>Batch 3 Pompano</td><td>Bawal bintang</td><td>01 Mar 2027 - 30 Sep 2027</td><td><span class="badge bg-label-warning">Not generated</span></td><td class="text-end font-monospace" data-hide-roles="field_team">-</td><td><span class="badge bg-label-secondary"><i class="bx bx-edit"></i> Draft</span></td><td><a href="#step-1" class="btn btn-sm btn-outline-primary">Edit</a></td></tr>
         </tbody>
       </table>
     </div>
@@ -68,6 +69,12 @@ input[type=range]{width:100%}
   <div class="d-flex align-items-center justify-content-between mb-4">
     <div>
       <h4 class="fw-bold mb-1">New Planning Simulation <span class="badge bg-label-secondary align-middle ms-1" id="draft-badge"></span></h4>
+      <div class="btn-group btn-group-sm my-2" role="group" aria-label="Planning steps">
+        <a class="btn btn-outline-primary" href="#step-1" data-step-link="1">Step #1</a>
+        <a class="btn btn-outline-primary" href="#step-2" data-step-link="2">Step #2</a>
+        <a class="btn btn-outline-primary" href="#step-3" data-step-link="3">Step #3</a>
+      </div>
+      <p class="text-primary small fw-semibold mb-1" id="step-kicker"></p>
       <p class="text-muted small mb-0">Simulate density, harvest and gross profit before stocking. All figures recalculate instantly.</p>
     </div>
     <a href="#baselines" class="btn btn-outline-secondary btn-sm"><i class="bx bx-arrow-back me-1"></i> Back</a>
@@ -217,9 +224,11 @@ input[type=range]{width:100%}
               <button type="button" class="btn btn-primary" id="btn-generate"></button>
             </div>
 
-            <div data-hide-roles="field_team">
+            <div id="profit-section" data-hide-roles="field_team">
               <hr class="my-4 opacity-25">
               <h6 class="fw-bold text-primary mb-3 d-flex align-items-center"><i class="bx bx-dollar-circle me-2 fs-5"></i> Profit Preview</h6>
+              <div id="profit-incomplete"></div>
+              <div id="profit-body">
               <div id="profit-warn"></div>
               <div class="row g-3 mb-3" id="kpis"></div>
               <div class="table-responsive">
@@ -235,15 +244,16 @@ input[type=range]{width:100%}
                   <tbody id="price-body"></tbody>
                 </table>
               </div>
+              </div>
             </div>
 
-            <div data-roles="field_team">
+            <div id="tech-block" data-roles="field_team">
               <hr class="my-4 opacity-25">
               <h6 class="fw-bold text-primary mb-3 d-flex align-items-center"><i class="bx bx-target-lock me-2 fs-5"></i> Technical Targets</h6>
               <div class="row g-3" id="tech-kpis"></div>
             </div>
 
-            <div class="d-flex align-items-center justify-content-end flex-wrap gap-2 pt-3 mt-4 border-top" data-roles="super_admin ops_manager management analyst">
+            <div id="calc-actions" class="d-flex align-items-center justify-content-end flex-wrap gap-2 pt-3 mt-4 border-top" data-roles="super_admin ops_manager management analyst">
               <span class="small text-muted me-auto" id="save-hint"></span>
               <a href="#baselines" class="btn btn-outline-secondary px-4">Cancel</a>
               <button type="button" class="btn btn-outline-primary px-4" id="btn-draft"><i class="bx bx-save me-1"></i> Save Draft</button>
@@ -270,7 +280,7 @@ input[type=range]{width:100%}
       </div>
       <div class="d-flex flex-wrap gap-2">
         <a class="btn btn-outline-secondary d-inline-flex align-items-center gap-1" href="#baselines"><i class="bx bx-arrow-back"></i> Back</a>
-        <a class="btn btn-outline-primary d-inline-flex align-items-center gap-1" href="#calculator" data-roles="super_admin ops_manager management analyst"><i class="bx bx-copy"></i> Clone to v2</a>
+        <a class="btn btn-outline-primary d-inline-flex align-items-center gap-1" href="#step-1" data-roles="super_admin ops_manager management analyst"><i class="bx bx-copy"></i> Clone to v2</a>
         <a class="btn btn-outline-primary d-inline-flex align-items-center gap-1" href="feed-simulation.html#plans" data-hide-roles="field_team"><i class="bx bx-dish"></i> FS-202611-0002</a>
       </div>
     </div>
@@ -349,7 +359,62 @@ AqMock.screens(['baselines', 'calculator', 'baseline'], 'calculator');
     ]
   };
   var FIELDS = ['p-name', 'p-start', 'p-end', 'p-site', 'p-species', 'p-margin', 'n-l', 'n-w', 'n-d', 'n-q', 'g-l', 'g-w', 'g-d', 'g-q', 'n-density', 'n-size', 'n-tsize', 'n-doc', 'n-sr', 'n-fcr', 'n-seedp', 'g-dens', 'g-other'];
-  var U = 'm³', M2 = false, SANDBOX = false, R = {};
+  var U = 'm³', M2 = false, SANDBOX = false, R = {}, viewFeed = null;
+  var NURS_B = [[3, 12, 'Megami GR-1', 8], [12, 25, 'Megami GR-2', 6], [25, 50, 'Megami GR-3', 5], [50, 9999, 'Megami GR-4', 5]];
+  var GROW_B = [[25, 30, 'Megami GR-2', 5], [30, 50, 'Megami GR-3', 5], [50, 70, 'Megami GR-4', 5], [70, 110, 'Megami GR-5', 4.5], [110, 210, 'Megami GR-7', 3.5], [210, 360, 'Megami GR-10', 3], [360, 9999, 'Megami GR-12', 3]];
+
+  function currentStep() {
+    var h = (location.hash || '').slice(1);
+    if (h === 'step-2') return 2;
+    if (h === 'step-3') return 3;
+    if (h === 'baselines' || h === 'baseline') return 0;
+    return 1;
+  }
+  function simCohort(c) {
+    var table = c.phase === 'Nursery' ? NURS_B : GROW_B, cum = 0, by = {}, fcr = null;
+    for (var day = 1; day <= c.days; day++) {
+      var mbw = c.w0 + (c.w1 - c.w0) * (day - 1) / Math.max(1, c.days - 1);
+      var sr = 100 - (100 - c.srEnd) * day / c.days;
+      var br = table[table.length - 1];
+      for (var i = 0; i < table.length; i++) if (mbw < table[i][1]) { br = table[i]; break; }
+      var pop = Math.round(c.stocking * sr / 100), bio = pop * mbw / 1000, kg = bio * br[3] / 100;
+      cum += kg; by[br[2]] = (by[br[2]] || 0) + kg;
+      var gain = bio - c.stocking * c.w0 / 1000;
+      if (gain > 0) fcr = cum / gain;
+    }
+    var cost = Object.keys(by).reduce(function (s, f) { return s + by[f] * (P.FEED_PRICE[f] || 0); }, 0);
+    return { kg: cum, cost: cost, fcr: fcr ? Math.round(fcr * 100) / 100 : null };
+  }
+  function buildDemoFeed(sig, nSeed, nDoc) {
+    var n = simCohort({ phase: 'Nursery', stocking: nSeed, w0: v('n-size'), w1: v('n-tsize'), days: nDoc, srEnd: v('n-sr') });
+    var gKg = 0, gCost = 0, byClass = [];
+    S.classes.forEach(function (c, i) {
+      var g = simCohort({ phase: 'Grow-out', stocking: Math.round(R.rows[i].alloc), w0: v('n-tsize'), w1: c.mbw, days: c.doc, srEnd: R.rows[i].sr });
+      gKg += g.kg; gCost += g.cost; byClass[i] = { kg: g.kg, cost: g.cost, fcr: g.fcr };
+    });
+    return { code: 'FS-202611-0004', nurseryKg: n.kg, nurseryCost: n.cost, growKg: gKg, growCost: gCost, byClass: byClass, sig: sig, complete: true, demo: true };
+  }
+  function applyStep(step) {
+    var kick = {
+      1: 'Step #1 · Set the commodity, cages, and harvest allocation. Stop here, then generate the Feed Simulation.',
+      2: 'Step #2 · Feed Simulation is started. Profit stays blocked until every cage has a feed selected.',
+      3: 'Step #3 · Feed prices are in. Profit preview and baseline actions are available.'
+    };
+    if ($('step-kicker')) $('step-kicker').textContent = kick[step] || '';
+    document.querySelectorAll('[data-step-link]').forEach(function (a) {
+      a.classList.toggle('active', +a.getAttribute('data-step-link') === step);
+    });
+    $('profit-section').classList.toggle('step-off', step < 2);
+    $('profit-incomplete').classList.toggle('step-off', step !== 2);
+    $('profit-body').classList.toggle('step-off', step !== 3);
+    $('tech-block').classList.toggle('step-off', step !== 3);
+    $('calc-actions').classList.toggle('step-off', step !== 3);
+    if (step === 2) {
+      $('profit-incomplete').innerHTML = '<div class="alert alert-warning mb-0"><i class="bx bx-error-circle me-2"></i><strong>Feed Simulation is not complete.</strong> Each cage still has at least one day with no feed selected. Profit figures stay unavailable until every cage is complete and the feed prices are set.</div>';
+      $('feed-status-text').innerHTML = '<span class="text-warning fw-semibold"><i class="bx bx-error-circle"></i> Not complete. Each cage still has a day with no feed selected.</span>';
+      $('btn-generate').innerHTML = '<i class="bx bx-right-arrow-circle me-1"></i> Open Feed Simulation';
+    }
+  }
 
   /* restore the draft when coming back from Feed Simulation */
   var incoming = P.decode();
@@ -421,10 +486,10 @@ AqMock.screens(['baselines', 'calculator', 'baseline'], 'calculator');
 
   /* size classes */
   function renderClasses() {
-    var simCol = !!S.feed;
+    var simCol = !!viewFeed;
     $('alloc-body').innerHTML = S.classes.map(function (c, i) {
       var r = R.rows[i], bad = c.mbw < c.min || c.mbw > c.max;
-      var simF = S.feed && S.feed.byClass && S.feed.byClass[i] ? S.feed.byClass[i].fcr : null;
+      var simF = viewFeed && viewFeed.byClass && viewFeed.byClass[i] ? viewFeed.byClass[i].fcr : null;
       var inp = function (f, cls, step, lab) { return '<input type="number"' + (step ? ' step="' + step + '"' : '') + ' class="form-control form-control-sm ' + cls + '" value="' + c[f] + '" data-c="' + i + '" data-f="' + f + '" aria-label="' + lab + '">'; };
       return '<tr>' +
         '<td><div class="d-flex align-items-center gap-1">' + inp('min', 'w-num', 0, 'Min weight') + '-' + inp('max', 'w-num', 0, 'Max weight') + '</div></td>' +
@@ -534,6 +599,12 @@ AqMock.screens(['baselines', 'calculator', 'baseline'], 'calculator');
       harvestKg += kg; headsSum += harvested;
       return { alloc: alloc, harvested: harvested, kg: kg, localP: localP, date: D.add(nEnd, c.doc), sr: sr };
     });
+    var sig = JSON.stringify([nSeed, num(nVol), v('n-size'), v('n-tsize'), nDoc, v('n-sr'), gIn, num(gVol), S.classes.map(function (c) { return [c.pct, c.mbw, c.doc, c.sr]; })]);
+    var step = currentStep();
+    var realFeed = S.feed && !S.feed.demo ? S.feed : null;
+    if (step !== 3) viewFeed = null;
+    else if (realFeed && realFeed.complete !== false) viewFeed = realFeed;
+    else viewFeed = buildDemoFeed(sig, nSeed, nDoc);
     renderClasses();
     var ok = Math.abs(totPct - 100) < 0.001;
     $('alloc-total').className = 'badge ' + (ok ? 'bg-label-success' : 'bg-label-danger');
@@ -545,10 +616,9 @@ AqMock.screens(['baselines', 'calculator', 'baseline'], 'calculator');
     $('class-warn').innerHTML = warns.length ? '<div class="alert alert-danger small py-2 mb-0 mt-2">' + warns.join('<br>') + '</div>' : '';
 
     /* feed: estimate until a current Feed Simulation exists */
-    var sig = JSON.stringify([nSeed, num(nVol), v('n-size'), v('n-tsize'), nDoc, v('n-sr'), gIn, num(gVol), S.classes.map(function (c) { return [c.pct, c.mbw, c.doc, c.sr]; })]);
-    var feedState = !S.feed ? 'none' : (S.feed.sig === sig ? 'current' : 'stale');
-    var nFeed = feedState === 'none' ? nGainKg * v('n-fcr') * P.REF_PRICE.nursery : S.feed.nurseryCost;
-    var gFeed = feedState === 'none' ? gFeedEst : S.feed.growCost;
+    var feedState = !viewFeed ? 'none' : (viewFeed.sig === sig ? 'current' : 'stale');
+    var nFeed = feedState === 'none' ? nGainKg * v('n-fcr') * P.REF_PRICE.nursery : viewFeed.nurseryCost;
+    var gFeed = feedState === 'none' ? gFeedEst : viewFeed.growCost;
     var other = harvestKg * v('g-other');
     var cost = seedCost + nFeed + gFeed + other;
     var gp = revenue - cost, mPct = revenue > 0 ? gp / revenue : 0;
@@ -557,18 +627,18 @@ AqMock.screens(['baselines', 'calculator', 'baseline'], 'calculator');
 
     $('profit-warn').innerHTML = {
       none: '<div class="alert alert-warning small"><i class="bx bx-error me-2"></i><strong>Nursery feed and Grow-out feed are estimates</strong> (FCR target × biomass gain × catalog reference price) and do not reflect the real feeding plan. Use <em>Save Draft and Generate Feed Simulation</em>.</div>',
-      stale: '<div class="alert alert-warning small"><i class="bx bx-error me-2"></i><strong>Inputs changed after ' + (S.feed ? S.feed.code : '') + '.</strong> Feed cost below comes from the old simulation. Generate the Feed Simulation again.</div>',
+      stale: '<div class="alert alert-warning small"><i class="bx bx-error me-2"></i><strong>Inputs changed after ' + (viewFeed ? viewFeed.code : '') + '.</strong> Feed cost below comes from the old simulation. Generate the Feed Simulation again.</div>',
       current: ''
     }[feedState];
-    $('feed-status-text').innerHTML = feedState === 'none' ? 'Not generated yet. Feed cost below is an estimate.'
-      : feedState === 'stale' ? '<span class="text-warning fw-semibold">' + S.feed.code + ' is out of date. Generate again.</span>'
-        : '<span class="text-success"><i class="bx bx-check-circle"></i> ' + S.feed.code + ' · ' + num(S.feed.nurseryKg + S.feed.growKg) + ' kg feed</span>';
+    $('feed-status-text').innerHTML = feedState === 'none' ? 'Not generated yet. Generate the Feed Simulation after the size classes are valid.'
+      : feedState === 'stale' ? '<span class="text-warning fw-semibold">' + viewFeed.code + ' is out of date. Generate again.</span>'
+        : '<span class="text-success"><i class="bx bx-check-circle"></i> ' + viewFeed.code + ' · ' + num(viewFeed.nurseryKg + viewFeed.growKg) + ' kg feed</span>';
     $('btn-generate').innerHTML = '<i class="bx bx-right-arrow-circle me-1"></i> ' + (feedState === 'current' ? 'Save Draft and Open Feed Simulation' : 'Save Draft and Generate Feed Simulation');
-    $('feed-banner').innerHTML = feedState === 'current' ? '<div class="alert alert-success border-0 shadow-sm"><i class="bx bx-check-circle me-2"></i>' + S.feed.code + ' applied. Nursery feed and Grow-out feed now come from the Feed Simulation. This plan can be saved as a baseline.</div>' : '';
+    $('feed-banner').innerHTML = step === 3 && feedState === 'current' ? '<div class="alert alert-success border-0 shadow-sm"><i class="bx bx-check-circle me-2"></i>' + viewFeed.code + ' applied. Nursery feed and Grow-out feed now come from the Feed Simulation. This plan can be saved as a baseline.</div>' : '';
     $('draft-badge').textContent = S.code ? S.code + ' · Draft' : 'Unsaved';
 
     var badge = feedState === 'current' ? '' : ' <span class="badge bg-label-warning"><i class="bx bx-error"></i> ' + (feedState === 'none' ? 'Estimate' : 'Out of date') + '</span>';
-    var feedSrc = function (ph) { return feedState === 'none' ? 'FCR target × gain × ' + idr(P.REF_PRICE[ph]) + '/kg (catalog reference)' : S.feed.code + ' · ' + num(ph === 'nursery' ? S.feed.nurseryKg : S.feed.growKg) + ' kg × price per feed size'; };
+    var feedSrc = function (ph) { return feedState === 'none' ? 'FCR target × gain × ' + idr(P.REF_PRICE[ph]) + '/kg (catalog reference)' : viewFeed.code + ' · ' + num(ph === 'nursery' ? viewFeed.nurseryKg : viewFeed.growKg) + ' kg × price per feed size'; };
     $('kpis').innerHTML = [
       ['Revenue', idr(revenue), 'Local + export', ''],
       ['Projected cost', idr(cost), 'Seed + feed + other direct' + badge, ''],
@@ -608,6 +678,7 @@ AqMock.screens(['baselines', 'calculator', 'baseline'], 'calculator');
         }))
     };
     AqMock.applyRole();
+    applyStep(step);
   }
 
   $('btn-add-class').addEventListener('click', function () {
@@ -640,6 +711,7 @@ AqMock.screens(['baselines', 'calculator', 'baseline'], 'calculator');
     S.code = S.code || 'PLAN-202611-0007'; calc();
     location.href = 'feed-simulation.html?d=' + P.encode(R.payload) + '#plan';
   });
+  window.addEventListener('hashchange', function () { calc(); });
   calc();
 
   /* baseline show */
