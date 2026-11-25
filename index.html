@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AquaOps Mockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/vendor/fonts/boxicons.css">
+<link rel="stylesheet" href="assets/vendor/css/core.css">
+<link rel="stylesheet" href="assets/vendor/css/theme-default.css">
+<link rel="stylesheet" href="assets/css/demo.css">
+<link rel="stylesheet" href="css/aquaops-theme.css">
+</head>
+<body>
+<div id="mock-content" class="d-none">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h4 class="mb-1">AquaOps Mockups</h4>
+      <p class="text-muted mb-0">Interactive mockups for review before the BRDs are finalised. Sample data only.</p>
+    </div>
+  </div>
+
+  <div class="alert alert-info border-0 shadow-sm mb-4"><i class="bx bx-user-circle me-2"></i>Use <strong>View as</strong> at the top right to see each screen per role. The selected role is saved in this browser only.</div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm h-100"><div class="card-body">
+        <div class="d-flex align-items-center mb-2"><i class="bx bx-calculator fs-2 text-primary me-2"></i><h5 class="fw-bold mb-0">Commodity Planning Calculator</h5></div>
+        <p class="small text-muted">Density gauge with cited standards, two-phase plan, size-class allocation with Auto-Balance, Worst / Normal / Best presets, break-even and suggested price, baselines with target vs actual.</p>
+        <div class="small mb-3"><span class="badge bg-label-secondary me-1">List</span><span class="badge bg-label-secondary me-1">Form</span><span class="badge bg-label-secondary">Show</span></div>
+        <a href="planning-calculator.html#calculator" class="btn btn-primary btn-sm">Open</a>
+        <a href="planning-calculator.html#baselines" class="btn btn-outline-primary btn-sm">Baselines</a>
+      </div></div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm h-100"><div class="card-body">
+        <div class="d-flex align-items-center mb-2"><i class="bx bx-basket fs-2 text-primary me-2"></i><h5 class="fw-bold mb-0">Harvest Unit Economics &amp; Margin Realization</h5></div>
+        <p class="small text-muted">Record Harvest with grade lines and commercial status, approval flow, stocking COGS breakdown with sources, running gross profit, price guidance per grade.</p>
+        <div class="small mb-3"><span class="badge bg-label-secondary me-1">List</span><span class="badge bg-label-secondary me-1">Form</span><span class="badge bg-label-secondary me-1">Show</span><span class="badge bg-label-primary">Phone</span></div>
+        <a href="harvest-economics.html#record" class="btn btn-primary btn-sm">Open</a>
+        <a href="harvest-economics.html#economics" class="btn btn-outline-primary btn-sm">Economics</a>
+      </div></div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm h-100"><div class="card-body">
+        <div class="d-flex align-items-center mb-2"><i class="bx bx-dish fs-2 text-primary me-2"></i><h5 class="fw-bold mb-0">Feed Simulation Planning</h5></div>
+        <p class="small text-muted">Multi-cage plan, cage header with regime, editable daily grid (SR, feed rate, feed, MBW), Pompano pre-fill, consolidated procurement in bags, cage comparison.</p>
+        <div class="small mb-3"><span class="badge bg-label-secondary me-1">List</span><span class="badge bg-label-secondary">Plan</span></div>
+        <a href="feed-simulation.html#plan" class="btn btn-primary btn-sm">Open</a>
+        <a href="feed-simulation.html#plans" class="btn btn-outline-primary btn-sm">Plans</a>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent border-bottom py-3"><h5 class="card-title fw-bold mb-0 text-primary"><i class="bx bx-user-check me-2"></i>Role access shown</h5></div>
+    <div class="table-responsive">
+      <table class="table">
+        <thead><tr><th>Module</th><th>Super Admin</th><th>Ops Manager</th><th>Management</th><th>Analyst</th><th>Field Team</th></tr></thead>
+        <tbody>
+          <tr><td>Planning Calculator</td><td>Full</td><td>Full + link baseline</td><td>Create, view</td><td>Create, view</td><td>Technical view of linked baseline only</td></tr>
+          <tr><td>Harvest record + approval</td><td>Full</td><td>Record, approve / reject</td><td>View</td><td>View</td><td>Record, submit (phone)</td></tr>
+          <tr><td>Stocking economics</td><td>View</td><td>View</td><td>View</td><td>View</td><td>No access</td></tr>
+          <tr><td>Feed Simulation</td><td>Manage</td><td>Manage</td><td>View</td><td>View</td><td>No access</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-transparent border-bottom py-3"><h5 class="card-title fw-bold mb-0 text-primary"><i class="bx bx-git-branch me-2"></i>Base and decisions</h5></div>
+    <div class="card-body pt-3 small">
+      <ul class="mb-0">
+        <li>Layout follows DESIGN.md at master 7084747a (23 Nov 2026); DESIGN.md not changed. CSS copied from the repo (Sneat core, theme-default, demo, aquaops-theme, Boxicons).</li>
+        <li>Data shape checked against staging 8ca8552c (23 Nov 2026). Staging is not a base branch; each page footer lists the feature branches it needs.</li>
+        <li>Money as IDR with font-monospace (IdrFormat), kg with two decimals, status badges bg-label-secondary / warning / success / danger.</li>
+        <li>Harvest: live biomass graded per line; Culled / Rejected deducted from commercial revenue; dead heads go to Mortality; flexible price per grade.</li>
+        <li>Planning: target margin 15% default; suggested price = break-even ÷ (1 − margin); kerapu standard marked Draft, lobster Unverified.</li>
+        <li>Feed Simulation: Field Team has no access; bags rounded up per feed; nursery feed brackets are sample values (BRD lists grow-out brackets only).</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<script src="assets/mock/shell.js"></script>
+<script>AqMock.init({ active: 'home', title: 'AquaOps Mockups', branches: '' });</script>
+</body>
+</html>

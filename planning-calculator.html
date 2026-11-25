@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planning Calculator · AquaOps Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/vendor/fonts/boxicons.css">
+<link rel="stylesheet" href="assets/vendor/css/core.css">
+<link rel="stylesheet" href="assets/vendor/css/theme-default.css">
+<link rel="stylesheet" href="assets/css/demo.css">
+<link rel="stylesheet" href="css/aquaops-theme.css">
+<style>
+.gauge{height:10px;border-radius:6px;overflow:hidden;display:flex}
+.gauge>span{display:block;height:100%}
+.gauge-wrap{position:relative}
+.gauge-marker{position:absolute;top:-4px;width:3px;height:18px;background:#233446;border-radius:2px}
+input[type=range]{width:100%}
+</style>
+</head>
+<body>
+<div id="mock-content" class="d-none">
+
+<!-- ===================== LIST: Planning Baselines ===================== -->
+<div id="screen-baselines">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">Planning Calculator</h4>
+    <div class="d-flex gap-2" data-roles="super_admin ops_manager management analyst">
+      <a href="#calculator" class="btn btn-primary"><i class="bx bx-plus me-1"></i> New simulation</a>
+    </div>
+  </div>
+
+  <div class="alert alert-info border-0 shadow-sm mb-4" data-roles="field_team" role="alert">
+    <i class="bx bx-info-circle me-2"></i>Field Team only sees the technical part of baselines linked to a stocking (density, seed count, DOC, SR, FCR). Prices and margins are hidden.
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <p class="fw-bold">Filter :</p>
+      <form class="row g-3" onsubmit="return false">
+        <div class="col"><select class="form-select"><option>Any species</option><option>Bawal bintang (Trachinotus blochii)</option><option>Kerapu cantang</option><option>Lobster pasir</option><option>Rumput laut kotoni</option></select></div>
+        <div class="col"><select class="form-select"><option>Any status</option><option>Draft</option><option>Active</option><option>Archived</option></select></div>
+        <div class="col"><input type="text" class="form-control" placeholder="Baseline code"></div>
+        <div class="col d-flex align-items-end"><button type="submit" class="btn btn-outline-primary w-100 me-2">Filter</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead><tr><th>Code</th><th>Name</th><th>Species</th><th>Plan type</th><th>Scenario</th><th class="text-end" data-hide-roles="field_team">Margin</th><th>Linked to</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>PLAN-202611-0004 <span class="text-muted">v1</span></td><td>Batch 2 Pompano two-phase</td><td>Bawal bintang</td><td>Two-phase</td><td>Normal</td><td class="text-end font-monospace" data-hide-roles="field_team">41.72%</td><td>Batch 2 · KJA-01..04</td><td><span class="badge bg-label-success"><i class="bx bx-lock-alt"></i> Active</span></td><td><a href="#baseline" class="btn btn-sm btn-outline-primary">View</a></td></tr>
+          <tr><td>PLAN-202611-0005 <span class="text-muted">v1</span></td><td>Seaweed Ekas line 10x50</td><td>Rumput laut kotoni</td><td>Single</td><td>Normal</td><td class="text-end font-monospace" data-hide-roles="field_team">80.20%</td><td>-</td><td><span class="badge bg-label-secondary"><i class="bx bx-edit"></i> Draft</span></td><td><a href="#baseline" class="btn btn-sm btn-outline-primary">View</a></td></tr>
+          <tr><td>PLAN-202610-0002 <span class="text-muted">v1</span></td><td>Kerapu cantang grow-out</td><td>Kerapu cantang</td><td>Grow-out only</td><td>Worst</td><td class="text-end font-monospace" data-hide-roles="field_team">9.80%</td><td>Batch 1</td><td><span class="badge bg-label-secondary">Archived</span></td><td><a href="#baseline" class="btn btn-sm btn-outline-primary">View</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card-body small text-muted">Showing 1 to 3 of 3 results</div>
+  </div>
+</div>
+
+<!-- ===================== FORM: Calculator ===================== -->
+<div id="screen-calculator" class="d-none">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h4 class="fw-bold mb-1">New Planning Simulation</h4>
+      <p class="text-muted small mb-0">Simulate density, harvest and gross profit before stocking. All figures recalculate instantly.</p>
+    </div>
+    <a href="#baselines" class="btn btn-outline-secondary btn-sm"><i class="bx bx-arrow-back me-1"></i> Back</a>
+  </div>
+
+  <div class="alert alert-warning border-0 shadow-sm mb-4" data-roles="field_team" role="alert">
+    <i class="bx bx-error-circle me-2"></i>Field Team does not create simulations. This screen is shown for review; prices and margins are hidden.
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-xxl-9 col-lg-10">
+      <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-4">
+          <form onsubmit="return false">
+
+            <h6 class="fw-bold text-primary mb-3 d-flex align-items-center"><i class="bx bx-info-circle me-2 fs-5"></i> Plan Setup</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Mode <span class="text-danger">*</span></label>
+                <div class="d-flex gap-3">
+                  <div class="form-check"><input class="form-check-input" type="radio" name="mode" id="mode-infra" checked><label class="form-check-label" for="mode-infra">Existing infrastructure</label></div>
+                  <div class="form-check"><input class="form-check-input" type="radio" name="mode" id="mode-sandbox"><label class="form-check-label" for="mode-sandbox">Custom sandbox</label></div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold" for="p-name">Plan name <span class="text-danger">*</span></label>
+                <input id="p-name" type="text" class="form-control" value="Batch 2 Pompano two-phase">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold" for="p-site">Site <span class="text-danger">*</span></label>
+                <select id="p-site" class="form-select"><option>Ekas (KPG-EKS)</option><option>Kupang</option></select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold" for="p-species">Species <span class="text-danger">*</span></label>
+                <select id="p-species" class="form-select">
+                  <option value="pompano">Bawal bintang (Trachinotus blochii)</option>
+                  <option value="cantang">Kerapu cantang</option>
+                  <option value="lobster">Lobster pasir (Panulirus homarus)</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold" for="p-type">Plan type <span class="text-danger">*</span></label>
+                <select id="p-type" class="form-select"><option value="two">Two-phase (nursery + grow-out)</option><option value="growout">Grow-out only (purchased juveniles)</option></select>
+              </div>
+              <div class="col-md-8">
+                <label class="form-label fw-semibold">Scenario preset</label>
+                <div class="btn-group w-100" role="group" aria-label="Scenario preset">
+                  <button type="button" class="btn btn-outline-primary" data-preset="worst">Worst</button>
+                  <button type="button" class="btn btn-outline-primary active" data-preset="normal">Normal</button>
+                  <button type="button" class="btn btn-outline-primary" data-preset="best">Best</button>
+                </div>
+                <div class="form-text" id="preset-note">Normal: grow-out SR 85%, market price 0%.</div>
+              </div>
+              <div class="col-md-4" data-hide-roles="field_team">
+                <label class="form-label fw-semibold" for="p-margin">Target margin (%)</label>
+                <input id="p-margin" type="number" class="form-control" value="15" step="0.5">
+                <div class="form-text">Species default: 15%</div>
+              </div>
+            </div>
+
+            <hr class="my-4 opacity-25">
+
+            <div id="nursery-section">
+              <h6 class="fw-bold text-primary mb-3 d-flex align-items-center"><i class="bx bx-cube me-2 fs-5"></i> Phase 1: Nursery</h6>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Nursery cages <span class="text-danger">*</span></label>
+                  <div class="d-flex flex-wrap gap-3" id="n-cages"></div>
+                  <div class="form-text">Volume from <code>area_m3</code> unit: <span id="n-vol" class="fw-semibold"></span></div>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label fw-semibold" for="n-density">Density (heads/m³)</label>
+                  <input id="n-density" type="number" class="form-control" value="180">
+                </div>
+                <div class="col-md-3">
+                  <span class="form-label fw-semibold d-block">Seed needed</span>
+                  <span class="fs-4 fw-bold" id="n-seed"></span>
+                </div>
+                <div class="col-12"><div id="n-gauge"></div></div>
+                <div class="col-md-2"><label class="form-label fw-semibold" for="n-size">Seed size (g)</label><input id="n-size" type="number" class="form-control" value="5"></div>
+                <div class="col-md-2"><label class="form-label fw-semibold" for="n-tsize">Transfer (g)</label><input id="n-tsize" type="number" class="form-control" value="80"></div>
+                <div class="col-md-2"><label class="form-label fw-semibold" for="n-doc">DOC</label><input id="n-doc" type="number" class="form-control" value="60"></div>
+                <div class="col-md-2"><label class="form-label fw-semibold" for="n-sr">SR (%)</label><input id="n-sr" type="number" class="form-control" value="90"></div>
+                <div class="col-md-2"><label class="form-label fw-semibold" for="n-fcr">FCR</label><input id="n-fcr" type="number" class="form-control" value="1.2" step="0.1"></div>
+                <div class="col-md-2" data-hide-roles="field_team"><label class="form-label fw-semibold" for="n-feedp">Feed (IDR/kg)</label><input id="n-feedp" type="number" class="form-control" value="25800"><div class="form-text">Purchase average</div></div>
+                <div class="col-md-3" data-hide-roles="field_team"><label class="form-label fw-semibold" for="n-seedp">Seed price (IDR/head)</label><input id="n-seedp" type="number" class="form-control" value="1500"><div class="form-text">Purchase average COGS/Seed</div></div>
+              </div>
+              <hr class="my-4 opacity-25">
+            </div>
+
+            <h6 class="fw-bold text-primary mb-3 d-flex align-items-center"><i class="bx bx-shape-square me-2 fs-5"></i> <span id="g-title">Phase 2: Grow-out</span></h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Grow-out cages <span class="text-danger">*</span></label>
+                <div class="d-flex flex-wrap gap-3" id="g-cages"></div>
+                <div class="form-text">Volume: <span id="g-vol" class="fw-semibold"></span></div>
+              </div>
+              <div class="col-md-3" id="g-juv-wrap">
+                <label class="form-label fw-semibold" for="g-juv">Purchased juveniles (heads)</label>
+                <input id="g-juv" type="number" class="form-control" value="8748">
+              </div>
+              <div class="col-md-3">
+                <span class="form-label fw-semibold d-block">Heads in</span>
+                <span class="fs-4 fw-bold" id="g-in"></span>
+                <span class="small text-muted d-block" id="g-in-note"></span>
+              </div>
+              <div class="col-md-3">
+                <span class="form-label fw-semibold d-block">Density</span>
+                <span class="fs-4 fw-bold" id="g-density"></span>
+              </div>
+              <div class="col-12"><div id="g-gauge"></div><div id="g-capacity"></div></div>
+              <div class="col-md-2"><label class="form-label fw-semibold" for="g-doc">DOC</label><input id="g-doc" type="number" class="form-control" value="150"></div>
+              <div class="col-md-2"><label class="form-label fw-semibold" for="g-sr">SR (%)</label><input id="g-sr" type="number" class="form-control" value="85"></div>
+              <div class="col-md-2"><label class="form-label fw-semibold" for="g-fcr">FCR</label><input id="g-fcr" type="number" class="form-control" value="1.8" step="0.1"><div class="form-text">Closed-out avg (3)</div></div>
+              <div class="col-md-3" data-hide-roles="field_team"><label class="form-label fw-semibold" for="g-feedp">Feed (IDR/kg)</label><input id="g-feedp" type="number" class="form-control" value="22000"><div class="form-text">Purchase average</div></div>
+              <div class="col-md-3" data-hide-roles="field_team"><label class="form-label fw-semibold" for="g-other">Other direct cost (IDR/kg)</label><input id="g-other" type="number" class="form-control" value="1500"></div>
+              <div class="col-md-3 d-none" id="g-juvp-wrap" data-hide-roles="field_team"><label class="form-label fw-semibold" for="g-juvp">Juvenile price (IDR/head)</label><input id="g-juvp" type="number" class="form-control" value="3500"></div>
+            </div>
+
+            <hr class="my-4 opacity-25">
+
+            <h6 class="fw-bold text-primary mb-3 d-flex align-items-center"><i class="bx bx-slider-alt me-2 fs-5"></i> Harvest Allocation (size classes)</h6>
+            <div class="table-responsive">
+              <table class="table table-sm align-middle">
+                <thead><tr><th>Size class</th><th style="width:28%">Allocation</th><th class="text-end">Heads</th><th class="text-end">Biomass (kg)</th><th data-hide-roles="field_team">Local (IDR/kg)</th><th data-hide-roles="field_team">Export share</th><th data-hide-roles="field_team">Export (IDR/kg)</th></tr></thead>
+                <tbody id="alloc-body"></tbody>
+                <tfoot><tr class="fw-semibold"><td>Total</td><td><span id="alloc-total" class="badge"></span></td><td class="text-end" id="alloc-heads"></td><td class="text-end" id="alloc-kg"></td><td colspan="3" data-hide-roles="field_team"></td></tr></tfoot>
+              </table>
+            </div>
+            <button type="button" class="btn btn-outline-primary btn-sm" id="btn-balance"><i class="bx bx-refresh me-1"></i> Auto-Balance to 100%</button>
+
+            <div data-hide-roles="field_team">
+              <hr class="my-4 opacity-25">
+              <h6 class="fw-bold text-primary mb-3 d-flex align-items-center"><i class="bx bx-dollar-circle me-2 fs-5"></i> Profit Preview</h6>
+              <div class="row g-3 mb-3" id="kpis"></div>
+              <div class="table-responsive">
+                <table class="table table-sm">
+                  <thead><tr><th>Cost component</th><th class="text-end">Amount</th><th>Source</th></tr></thead>
+                  <tbody id="cost-body"></tbody>
+                </table>
+              </div>
+              <h6 class="fw-semibold mt-4 mb-2">Price guidance per size class</h6>
+              <div class="table-responsive">
+                <table class="table table-sm">
+                  <thead><tr><th>Size class</th><th class="text-end">Market (local)</th><th class="text-end">Break-even</th><th class="text-end">Suggested (target margin)</th><th class="text-end">Margin / kg</th><th>Status</th></tr></thead>
+                  <tbody id="price-body"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div data-roles="field_team">
+              <hr class="my-4 opacity-25">
+              <h6 class="fw-bold text-primary mb-3 d-flex align-items-center"><i class="bx bx-target-lock me-2 fs-5"></i> Technical Targets</h6>
+              <div class="row g-3" id="tech-kpis"></div>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-end gap-2 pt-3 mt-4 border-top">
+              <a href="#baselines" class="btn btn-outline-secondary px-4">Cancel</a>
+              <a href="#baseline" class="btn btn-primary px-4" id="btn-save" data-roles="super_admin ops_manager management analyst"><i class="bx bx-save me-1"></i> Save as baseline</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SHOW: Baseline ===================== -->
+<div id="screen-baseline" class="d-none">
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3 p-4">
+      <div>
+        <nav aria-label="breadcrumb"><ol class="breadcrumb mb-1 fs-7 text-uppercase fw-semibold"><li class="breadcrumb-item"><a href="#baselines">Planning Calculator</a></li><li class="breadcrumb-item active text-primary" aria-current="page">PLAN-202611-0004</li></ol></nav>
+        <div class="d-flex align-items-center gap-2">
+          <h3 class="fw-bold mb-0 text-dark">PLAN-202611-0004 <span class="text-muted fs-5">v1</span></h3>
+          <span class="badge bg-label-success rounded-pill px-3 py-2" id="bl-badge"><i class="bx bx-lock-alt"></i> Active (locked)</span>
+        </div>
+        <p class="text-muted mb-0 mt-1">Batch 2 Pompano two-phase · Bawal bintang · Ekas · Normal scenario · Target Mar 2027</p>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-secondary d-inline-flex align-items-center gap-1" href="#baselines"><i class="bx bx-arrow-back"></i> Back</a>
+        <a class="btn btn-outline-primary d-inline-flex align-items-center gap-1" href="#calculator" data-roles="super_admin ops_manager management analyst"><i class="bx bx-copy"></i> Clone to v2</a>
+        <a class="btn btn-outline-primary d-inline-flex align-items-center gap-1" href="#" data-roles="super_admin ops_manager management analyst"><i class="bx bx-download"></i> Export PDF / Excel</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent border-bottom py-3"><h5 class="card-title fw-bold mb-0 text-primary"><i class="bx bx-info-circle me-2"></i>Plan Summary</h5></div>
+    <div class="card-body pt-3">
+      <div class="row g-3">
+        <div class="col-sm-6 col-md-3"><span class="text-muted fs-7 d-block">Seed stocked (nursery)</span><span class="fs-4 fw-bold">9,720 heads</span><span class="small text-muted d-block">180 heads/m³ · 54 m³</span></div>
+        <div class="col-sm-6 col-md-3"><span class="text-muted fs-7 d-block">Grow-out density</span><span class="fs-4 fw-bold">45.6 heads/m³</span><span class="small d-block"><span class="badge bg-label-success">Within 40-50</span></span></div>
+        <div class="col-sm-6 col-md-3"><span class="text-muted fs-7 d-block">Harvest</span><span class="fs-4 fw-bold">3,643.64 kg</span><span class="small text-muted d-block">7,436 heads · DOC 60 + 150</span></div>
+        <div class="col-sm-6 col-md-3" data-hide-roles="field_team"><span class="text-muted fs-7 d-block">Projected gross profit</span><span class="fs-5 fw-bold text-success font-monospace">IDR 112.214.970,00</span><span class="small d-block"><span class="badge bg-label-success">41.72% ≥ target 15%</span></span></div>
+        <div class="col-sm-6 col-md-3" data-roles="field_team"><span class="text-muted fs-7 d-block">FCR target</span><span class="fs-4 fw-bold">1.2 / 1.8</span><span class="small text-muted d-block">Nursery / grow-out</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent border-bottom py-3"><h5 class="card-title fw-bold mb-0 text-primary"><i class="bx bx-target-lock me-2"></i>Target vs Actual · Batch 2 (Pompano)</h5></div>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead><tr><th>Measure</th><th class="text-end">Target</th><th class="text-end">Actual</th><th class="text-end">Difference</th></tr></thead>
+        <tbody>
+          <tr><td>Heads stocked</td><td class="text-end">9,720</td><td class="text-end">9,100</td><td class="text-end text-warning">-620 (-6.4%)</td></tr>
+          <tr><td>SR grow-out</td><td class="text-end">85.0%</td><td class="text-end">82.5%</td><td class="text-end text-warning">-2.5 pt</td></tr>
+          <tr><td>Harvest biomass (kg)</td><td class="text-end">3,643.64</td><td class="text-end">3,412.10</td><td class="text-end text-danger">-6.4%</td></tr>
+          <tr><td>FCR grow-out</td><td class="text-end">1.80</td><td class="text-end">1.86</td><td class="text-end text-warning">+0.06</td></tr>
+          <tr data-hide-roles="field_team"><td>Revenue</td><td class="text-end font-monospace">IDR 268.997.300,00</td><td class="text-end font-monospace">IDR 249.640.000,00</td><td class="text-end text-danger">-7.2%</td></tr>
+          <tr data-hide-roles="field_team"><td>Gross profit</td><td class="text-end font-monospace">IDR 112.214.970,00</td><td class="text-end font-monospace">IDR 93.118.500,00</td><td class="text-end text-danger">-17.0%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card-body small text-muted pt-2">Actuals come from Harvest Unit Economics; provisional until closeout.</div>
+  </div>
+
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent border-bottom py-3"><h5 class="card-title fw-bold mb-0 text-primary"><i class="bx bx-history me-2"></i>Version History</h5></div>
+    <div class="card-body pt-3">
+      <div class="timeline ps-2" id="bl-history"></div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm" data-roles="super_admin ops_manager">
+    <div class="card-header bg-transparent border-bottom py-3"><h5 class="card-title fw-bold mb-0 text-primary"><i class="bx bx-link me-2"></i>Link</h5></div>
+    <div class="card-body pt-3">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label fw-semibold" for="link-batch">Batch (one active baseline per species)</label>
+          <select id="link-batch" class="form-select mb-2"><option>Batch 2 · Ekas (linked)</option><option>Batch 3 · Ekas</option></select>
+          <div class="form-text">A linked baseline is locked. Changes are made through Clone to v2.</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold" for="link-stk">Stockings (optional)</label>
+          <select id="link-stk" class="form-select mb-2"><option>G1 · KJA-01 (linked)</option><option>G3 · KJA-03</option></select>
+          <button type="button" class="btn btn-primary" id="btn-link"><i class="bx bx-link me-1"></i> Update link</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script src="assets/mock/shell.js"></script>
+<script>
+AqMock.init({ active: 'planning', title: 'Planning · Commodity Planning Calculator', branches: 'T-20-batch-culture (batch link), T-11-purchasing (purchase price defaults), feature/28-feed-inventory-ledger (feed price, bag weight)' });
+AqMock.screens(['baselines', 'calculator', 'baseline'], 'calculator');
+
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var idr = AqMock.idr, int = AqMock.int;
+  var SPECIES = {
+    pompano: { label: 'Bawal bintang', nursery: [150, 200], growout: [40, 50], src: 'Juknis Pembesaran Bawal Bintang, BBPBL Lampung, KKP 2017', status: 'Verified' },
+    cantang: { label: 'Kerapu cantang', nursery: [150, 200], growout: [15, 20], src: 'RSNI3 9265:2024 Pembesaran ikan kerapu, BSN', status: 'Draft standard' },
+    lobster: { label: 'Lobster pasir', nursery: [60, 90], growout: [20, 30], src: 'UNAIR news article 2024 (not a standard)', status: 'Unverified' }
+  };
+  var PRESETS = { worst: { sr: 65, adj: -10 }, normal: { sr: 85, adj: 0 }, best: { sr: 92, adj: 10 } };
+  var N_CAGES = [['NUR-01', 27, true], ['NUR-02', 27, true], ['NUR-03', 27, false]];
+  var G_CAGES = [['KJA-01', 48, true], ['KJA-02', 48, true], ['KJA-03', 48, true], ['KJA-04', 48, true], ['KJA-05', 48, false], ['KJA-06', 48, false]];
+  var classes = [
+    { name: '400-450 g', avg: 425, pct: 20, local: 60000, exp: 0, expPrice: 95000 },
+    { name: '450-500 g', avg: 475, pct: 40, local: 70000, exp: 0, expPrice: 105000 },
+    { name: '500-550 g', avg: 525, pct: 30, local: 80000, exp: 0, expPrice: 115000 },
+    { name: '550-600 g', avg: 575, pct: 10, local: 90000, exp: 0, expPrice: 125000 }
+  ];
+  var priceAdj = 0;
+
+  function renderCages(target, list, prefix) {
+    $(target).innerHTML = list.map(function (c, i) {
+      return '<div class="form-check"><input class="form-check-input" type="checkbox" id="' + prefix + i + '"' + (c[2] ? ' checked' : '') + '><label class="form-check-label" for="' + prefix + i + '">' + c[0] + ' <span class="text-muted">(' + c[1] + ' m³)</span></label></div>';
+    }).join('');
+    list.forEach(function (c, i) { $(prefix + i).addEventListener('change', function (e) { c[2] = e.target.checked; calc(); }); });
+  }
+  function vol(list) { return list.reduce(function (s, c) { return s + (c[2] ? c[1] : 0); }, 0); }
+  function v(id) { return parseFloat($(id).value) || 0; }
+
+  function gauge(id, dens, range, sp) {
+    var max = range[1] * 1.2, scaleMax = max * 1.25;
+    var p = function (x) { return Math.min(100, x / scaleMax * 100); };
+    var zone, cls;
+    if (dens < range[0]) { zone = 'Capacity not used'; cls = 'bg-label-secondary'; }
+    else if (dens <= range[1]) { zone = 'Within standard'; cls = 'bg-label-success'; }
+    else if (dens <= max) { zone = 'Above standard (warning band +20%)'; cls = 'bg-label-warning'; }
+    else { zone = 'Overstocked'; cls = 'bg-label-danger'; }
+    $(id).innerHTML = '<div class="gauge-wrap mb-1"><div class="gauge">' +
+      '<span style="width:' + p(range[0]) + '%;background:#d9dee3"></span>' +
+      '<span style="width:' + (p(range[1]) - p(range[0])) + '%;background:#71dd37"></span>' +
+      '<span style="width:' + (p(max) - p(range[1])) + '%;background:#ffab00"></span>' +
+      '<span style="width:' + (100 - p(max)) + '%;background:#ff3e1d"></span></div>' +
+      '<span class="gauge-marker" style="left:calc(' + p(dens) + '% - 1px)"></span></div>' +
+      '<div class="d-flex flex-wrap gap-2 align-items-center small"><span class="badge ' + cls + '">' + dens.toFixed(1) + ' heads/m³ · ' + zone + '</span>' +
+      '<span class="text-muted">Standard ' + range[0] + '-' + range[1] + ' heads/m³ · ' + sp.src + '</span>' +
+      (sp.status !== 'Verified' ? '<span class="badge bg-label-warning">' + (sp.status === 'Draft standard' ? 'Draft standard' : 'Standard not yet verified') + '</span>' : '') + '</div>';
+  }
+
+  function calc() {
+    var sp = SPECIES[$('p-species').value];
+    var two = $('p-type').value === 'two';
+    var margin = v('p-margin') / 100;
+    $('nursery-section').classList.toggle('d-none', !two);
+    $('g-juv-wrap').classList.toggle('d-none', two);
+    $('g-juvp-wrap').classList.toggle('d-none', two);
+    $('g-title').textContent = two ? 'Phase 2: Grow-out' : 'Grow-out';
+
+    var nVol = vol(N_CAGES), gVol = vol(G_CAGES);
+    $('n-vol').textContent = nVol + ' m³'; $('g-vol').textContent = gVol + ' m³';
+    var nSeed = Math.round(nVol * v('n-density'));
+    var nOut = Math.round(nSeed * v('n-sr') / 100);
+    var nStartKg = nSeed * v('n-size') / 1000, nEndKg = nOut * v('n-tsize') / 1000;
+    var nFeedKg = Math.max(0, nEndKg - nStartKg) * v('n-fcr');
+    var seedCost = two ? nSeed * v('n-seedp') : 0;
+    var nFeedCost = two ? nFeedKg * v('n-feedp') : 0;
+    if (two) { $('n-seed').textContent = int(nSeed) + ' heads'; gauge('n-gauge', v('n-density'), sp.nursery, sp); }
+
+    var gIn = two ? nOut : Math.round(v('g-juv'));
+    var juvCost = two ? 0 : gIn * v('g-juvp');
+    var gStartKg = two ? nEndKg : gIn * v('n-tsize') / 1000;
+    $('g-in').textContent = int(gIn) + ' heads';
+    $('g-in-note').textContent = two ? 'Nursery ' + int(nSeed) + ' × SR ' + v('n-sr') + '%' : 'Purchased juveniles';
+    var gDens = gVol > 0 ? gIn / gVol : 0;
+    $('g-density').textContent = gDens.toFixed(1) + ' heads/m³';
+    gauge('g-gauge', gDens, sp.growout, sp);
+    var cap = '';
+    if (gDens > sp.growout[1] * 1.2 && gVol > 0) {
+      var need = Math.ceil(gIn / sp.growout[1] / 48) - G_CAGES.filter(function (c) { return c[2]; }).length;
+      cap = '<div class="alert alert-warning mt-2 mb-0 small"><i class="bx bx-error-circle me-2"></i>Grow-out density exceeds the limit. Add ' + need + ' cages of 48 m³ to stay ≤ ' + sp.growout[1] + ' heads/m³.</div>';
+    }
+    $('g-capacity').innerHTML = cap;
+
+    var harvested = Math.round(gIn * v('g-sr') / 100);
+    var totPct = classes.reduce(function (s, c) { return s + c.pct; }, 0);
+    var revenue = 0, harvestKg = 0, headsSum = 0;
+    var rows = classes.map(function (c, i) {
+      var heads = Math.round(harvested * c.pct / 100);
+      var kg = harvested * c.pct / 100 * c.avg / 1000;
+      var localP = c.local * (1 + priceAdj / 100), expP = c.expPrice * (1 + priceAdj / 100);
+      var rev = kg * (1 - c.exp / 100) * localP + kg * c.exp / 100 * expP;
+      revenue += rev; harvestKg += kg; headsSum += heads;
+      return { c: c, i: i, heads: heads, kg: kg, localP: localP };
+    });
+    $('alloc-body').innerHTML = rows.map(function (r) {
+      return '<tr><td>' + r.c.name + ' <span class="text-muted small">avg ' + r.c.avg + ' g</span></td>' +
+        '<td><div class="d-flex align-items-center gap-2"><input type="range" min="0" max="100" step="1" value="' + r.c.pct + '" data-pct="' + r.i + '" aria-label="Allocation ' + r.c.name + '"><input type="number" class="form-control form-control-sm" style="width:70px" value="' + r.c.pct + '" data-pctn="' + r.i + '"></div></td>' +
+        '<td class="text-end">' + int(r.heads) + '</td><td class="text-end">' + r.kg.toFixed(2) + '</td>' +
+        '<td data-hide-roles="field_team"><input type="number" class="form-control form-control-sm" value="' + r.c.local + '" data-local="' + r.i + '"></td>' +
+        '<td data-hide-roles="field_team"><input type="number" class="form-control form-control-sm" style="width:70px" value="' + r.c.exp + '" data-exp="' + r.i + '"></td>' +
+        '<td data-hide-roles="field_team"><input type="number" class="form-control form-control-sm" value="' + r.c.expPrice + '" data-expp="' + r.i + '"></td></tr>';
+    }).join('');
+    var ok = Math.abs(totPct - 100) < 0.001;
+    $('alloc-total').className = 'badge ' + (ok ? 'bg-label-success' : 'bg-label-danger');
+    $('alloc-total').textContent = totPct.toFixed(2) + '%' + (ok ? '' : ' (must be 100%)');
+    $('alloc-heads').textContent = int(headsSum);
+    $('alloc-kg').textContent = harvestKg.toFixed(2);
+    $('btn-save').classList.toggle('disabled', !ok);
+
+    var gFeedCost = Math.max(0, harvestKg - gStartKg) * v('g-fcr') * v('g-feedp');
+    var other = harvestKg * v('g-other');
+    var cost = seedCost + juvCost + nFeedCost + gFeedCost + other;
+    var gp = revenue - cost, mPct = revenue > 0 ? gp / revenue : 0;
+    var be = harvestKg > 0 ? cost / harvestKg : 0, sug = be / (1 - margin);
+    var mCls = mPct >= margin ? 'success' : (mPct > 0 ? 'warning' : 'danger');
+
+    $('kpis').innerHTML = [
+      ['Revenue', idr(revenue), 'Local + export', ''],
+      ['Projected cost', idr(cost), 'Seed + feed + other direct', ''],
+      ['Gross profit', idr(gp), 'Revenue − cost', 'text-' + mCls],
+      ['Margin', (mPct * 100).toFixed(2) + '%', '<span class="badge bg-label-' + mCls + '">' + (mPct >= margin ? 'Meets target ' : 'Below target ') + (margin * 100) + '%</span>', 'text-' + mCls]
+    ].map(function (k) {
+      return '<div class="col-sm-6 col-md-3"><span class="text-muted fs-7 d-block">' + k[0] + '</span><span class="fs-5 fw-bold font-monospace ' + k[3] + '">' + k[1] + '</span><span class="small text-muted d-block">' + k[2] + '</span></div>';
+    }).join('');
+    $('cost-body').innerHTML = [
+      two ? ['Seed (nursery)', seedCost, 'Purchase average COGS/Seed'] : ['Juveniles', juvCost, 'Purchase average COGS/Seed'],
+      two ? ['Nursery feed', nFeedCost, 'FCR × feed price'] : null,
+      ['Grow-out feed', gFeedCost, 'FCR × feed price'],
+      ['Other direct cost', other, 'Closed-out average IDR/kg'],
+      ['Break-even per kg', be, 'Projected cost ÷ harvest kg'],
+      ['Suggested price per kg', sug, 'Break-even ÷ (1 − target margin)']
+    ].filter(Boolean).map(function (r) {
+      return '<tr><td>' + r[0] + '</td><td class="text-end font-monospace">' + idr(r[1]) + '</td><td class="text-muted small">' + r[2] + '</td></tr>';
+    }).join('');
+    $('price-body').innerHTML = rows.map(function (r) {
+      var m = r.localP - be, st = r.localP >= sug ? ['success', 'Profit'] : (r.localP >= be ? ['warning', 'Below target'] : ['danger', 'Loss']);
+      return '<tr><td>' + r.c.name + '</td><td class="text-end font-monospace">' + idr(r.localP) + '</td><td class="text-end font-monospace">' + idr(be) + '</td><td class="text-end font-monospace">' + idr(sug) + '</td><td class="text-end font-monospace">' + idr(m) + '</td><td><span class="badge bg-label-' + st[0] + '">' + st[1] + '</span></td></tr>';
+    }).join('');
+    $('tech-kpis').innerHTML = [
+      ['Seed', two ? int(nSeed) + ' heads' : int(gIn) + ' heads'],
+      ['Grow-out density', gDens.toFixed(1) + ' heads/m³'],
+      ['DOC', (two ? v('n-doc') + ' + ' : '') + v('g-doc') + ' days'],
+      ['SR / FCR', v('g-sr') + '% / ' + v('g-fcr')]
+    ].map(function (k) { return '<div class="col-sm-6 col-md-3"><span class="text-muted fs-7 d-block">' + k[0] + '</span><span class="fs-5 fw-bold">' + k[1] + '</span></div>'; }).join('');
+
+    bindAlloc();
+    AqMock.applyRole();
+  }
+
+  function bindAlloc() {
+    document.querySelectorAll('[data-pct]').forEach(function (el) { el.addEventListener('change', function () { classes[+el.dataset.pct].pct = +el.value; calc(); }); });
+    document.querySelectorAll('[data-pctn]').forEach(function (el) { el.addEventListener('change', function () { classes[+el.dataset.pctn].pct = +el.value || 0; calc(); }); });
+    document.querySelectorAll('[data-local]').forEach(function (el) { el.addEventListener('change', function () { classes[+el.dataset.local].local = +el.value || 0; calc(); }); });
+    document.querySelectorAll('[data-exp]').forEach(function (el) { el.addEventListener('change', function () { classes[+el.dataset.exp].exp = Math.min(100, +el.value || 0); calc(); }); });
+    document.querySelectorAll('[data-expp]').forEach(function (el) { el.addEventListener('change', function () { classes[+el.dataset.expp].expPrice = +el.value || 0; calc(); }); });
+  }
+
+  $('btn-balance').addEventListener('click', function () {
+    var tot = classes.reduce(function (s, c) { return s + c.pct; }, 0) || 1;
+    classes.forEach(function (c) { c.pct = Math.round(c.pct / tot * 10000) / 100; });
+    var diff = Math.round((100 - classes.reduce(function (s, c) { return s + c.pct; }, 0)) * 100) / 100;
+    var big = classes.reduce(function (a, c) { return c.pct > a.pct ? c : a; }, classes[0]);
+    big.pct = Math.round((big.pct + diff) * 100) / 100;
+    calc();
+  });
+  document.querySelectorAll('[data-preset]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-preset]').forEach(function (x) { x.classList.remove('active'); });
+      b.classList.add('active');
+      var p = PRESETS[b.dataset.preset];
+      $('g-sr').value = p.sr; priceAdj = p.adj;
+      $('preset-note').textContent = b.textContent + ': grow-out SR ' + p.sr + '%, market price ' + (p.adj > 0 ? '+' : '') + p.adj + '%.';
+      calc();
+    });
+  });
+  ['p-species', 'p-type', 'p-margin', 'n-density', 'n-size', 'n-tsize', 'n-doc', 'n-sr', 'n-fcr', 'n-feedp', 'n-seedp', 'g-juv', 'g-doc', 'g-sr', 'g-fcr', 'g-feedp', 'g-other', 'g-juvp'].forEach(function (id) {
+    $(id).addEventListener('input', calc);
+  });
+  renderCages('n-cages', N_CAGES, 'nc'); renderCages('g-cages', G_CAGES, 'gc');
+  calc();
+
+  $('bl-history').innerHTML = [
+    ['Linked to Batch 2 (Pompano), status Active, locked', 'Ops Manager', '18 Nov 2026, 09:12'],
+    ['Saved as draft', 'Management', '15 Nov 2026, 16:40']
+  ].map(function (h) {
+    return '<div class="border-start border-2 border-primary-subtle ps-3 pb-3 position-relative"><span class="position-absolute top-0 start-0 translate-middle bg-primary rounded-circle" style="width:10px;height:10px;margin-left:-1px"></span><div class="fw-bold text-dark">' + h[0] + '</div><div class="text-muted small"><i class="bx bx-user me-1"></i>' + h[1] + '</div><div class="text-muted small mt-1"><i class="bx bx-time me-1"></i>' + h[2] + '</div></div>';
+  }).join('');
+  $('btn-link').addEventListener('click', function () { alert('Mockup: link updated and recorded in the audit log.'); });
+})();
+</script>
+</body>
+</html>
