@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cage Reservations · AquaOps Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/vendor/fonts/boxicons.css">
+<link rel="stylesheet" href="assets/vendor/css/core.css">
+<link rel="stylesheet" href="assets/vendor/css/theme-default.css">
+<link rel="stylesheet" href="assets/css/demo.css">
+<link rel="stylesheet" href="css/aquaops-theme.css">
+</head>
+<body>
+<div id="mock-content" class="d-none">
+
+<ul class="nav nav-pills mb-4 flex-wrap gap-1">
+  <li class="nav-item"><a class="nav-link" href="#alert-center" data-screen-tab="alert-center"><i class="bx bx-bell me-1"></i> Alert Center</a></li>
+  <li class="nav-item"><a class="nav-link" href="#stocking" data-screen-tab="stocking"><i class="bx bx-package me-1"></i> Stocking Setup</a></li>
+  <li class="nav-item"><a class="nav-link" href="#transfer" data-screen-tab="transfer"><i class="bx bx-transfer me-1"></i> Grading Transfer</a></li>
+</ul>
+
+<!-- ===================== ALERT CENTER ===================== -->
+<div id="screen-alert-center">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">Alert Center</h4>
+  </div>
+  <div class="card mb-4">
+    <div class="card-body">
+      <p class="fw-bold">Filter :</p>
+      <form class="row g-3" onsubmit="return false">
+        <div class="col-md"><select class="form-select" aria-label="Type"><option>Any type</option><option selected>Planning · Cage conflict</option><option>Feed variance</option><option>Water quality</option></select></div>
+        <div class="col-md"><select class="form-select" aria-label="Status"><option>Any status</option><option>Open</option><option>Acknowledged</option><option>Resolved</option></select></div>
+        <div class="col-md d-flex"><button class="btn btn-outline-primary w-100 me-2">Filter</button><button class="btn btn-outline-danger">Clear</button></div>
+      </form>
+    </div>
+  </div>
+  <div class="card mb-4">
+    <div class="table-responsive">
+      <table class="table">
+        <thead><tr><th>Date</th><th>Type</th><th>Message</th><th>Sent to</th><th>Status</th><th></th></tr></thead>
+        <tbody id="alerts"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-transparent border-bottom py-3"><h5 class="card-title fw-bold mb-0 text-primary"><i class="bx bx-info-circle me-2"></i>How the cage check works</h5></div>
+    <div class="card-body pt-3 small">
+      <ol class="mb-0">
+        <li>When a plan is saved as a baseline, each selected cage is reserved for its phase window (nursery: start to start + nursery DOC; grow-out: transfer to last size-class harvest).</li>
+        <li>A cage can still be used later by a stocking or a grading transfer. This is allowed, with a warning (see Stocking Setup and Grading Transfer).</li>
+        <li>5 days before each reservation starts, the system checks the cage again. If it has an active stocking or another reservation in the window, an alert is sent to Alert Center for Ops Manager and Management.</li>
+        <li>The plan shows a conflict badge until the cage is free, the plan is moved to another cage (Clone to v2), or the alert is resolved.</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== STOCKING SETUP ===================== -->
+<div id="screen-stocking" class="d-none">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div><h4 class="fw-bold mb-1">New Stocking</h4><p class="text-muted small mb-0">Only the fields relevant to the cage check are shown in this mockup.</p></div>
+    <a href="#alert-center" class="btn btn-outline-secondary btn-sm"><i class="bx bx-arrow-back me-1"></i> Back</a>
+  </div>
+  <div class="row justify-content-center">
+    <div class="col-xxl-9 col-lg-10">
+      <div class="card shadow-sm border-0 rounded-3"><div class="card-body p-4">
+        <h6 class="fw-bold text-primary mb-3 d-flex align-items-center"><i class="bx bx-info-circle me-2 fs-5"></i> Operational Target</h6>
+        <div class="row g-3">
+          <div class="col-md-4"><label class="form-label fw-semibold" for="s-site">Site <span class="text-danger">*</span></label><select id="s-site" class="form-select"><option>Ekas (KPG-EKS)</option></select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold" for="s-unit">Operational unit <span class="text-danger">*</span></label><select id="s-unit" class="form-select"></select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold" for="s-date">Stocking date <span class="text-danger">*</span></label><input id="s-date" type="date" class="form-control" value="2026-11-22"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold" for="s-sp">Species</label><select id="s-sp" class="form-select"><option>Lobster pasir</option></select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold" for="s-end">Expected end</label><input id="s-end" type="date" class="form-control" value="2026-12-03"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold" for="s-count">Stocking count</label><input id="s-count" type="number" class="form-control" value="600"></div>
+        </div>
+        <div id="s-warn" class="mt-3"></div>
+        <div class="d-flex align-items-center justify-content-end gap-2 pt-3 mt-4 border-top">
+          <a href="#alert-center" class="btn btn-outline-secondary px-4">Cancel</a>
+          <button type="button" class="btn btn-primary px-4" id="s-save"><i class="bx bx-save me-1"></i> Save</button>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== GRADING TRANSFER ===================== -->
+<div id="screen-transfer" class="d-none">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div><h4 class="fw-bold mb-1">Grading Transfer</h4><p class="text-muted small mb-0">Move graded heads to another cage. Only the target cage part is shown.</p></div>
+    <a href="#alert-center" class="btn btn-outline-secondary btn-sm"><i class="bx bx-arrow-back me-1"></i> Back</a>
+  </div>
+  <div class="row justify-content-center">
+    <div class="col-xxl-9 col-lg-10">
+      <div class="card shadow-sm border-0 rounded-3"><div class="card-body p-4">
+        <h6 class="fw-bold text-primary mb-3 d-flex align-items-center"><i class="bx bx-transfer me-2 fs-5"></i> Transfer</h6>
+        <div class="row g-3">
+          <div class="col-md-4"><label class="form-label fw-semibold" for="t-src">Source</label><select id="t-src" class="form-select"><option>POM-02 · Cage 3</option></select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold" for="t-unit">Target cage <span class="text-danger">*</span></label><select id="t-unit" class="form-select"></select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold" for="t-date">Transfer date <span class="text-danger">*</span></label><input id="t-date" type="date" class="form-control" value="2027-02-10"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold" for="t-grade">Grade</label><select id="t-grade" class="form-select"><option>Grade B (200-299 g)</option></select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold" for="t-heads">Heads</label><input id="t-heads" type="number" class="form-control" value="850"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold" for="t-until">Expected until</label><input id="t-until" type="date" class="form-control" value="2027-04-30"></div>
+        </div>
+        <div id="t-warn" class="mt-3"></div>
+        <div class="d-flex align-items-center justify-content-end gap-2 pt-3 mt-4 border-top">
+          <a href="#alert-center" class="btn btn-outline-secondary px-4">Cancel</a>
+          <button type="button" class="btn btn-primary px-4" id="t-save"><i class="bx bx-save me-1"></i> Save</button>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script src="assets/mock/shell.js"></script>
+<script src="assets/mock/planning-data.js"></script>
+<script>
+AqMock.init({ active: location.hash === '#alert-center' || !location.hash ? 'alerts' : 'stocking', title: 'Cage reservations · Alert Center, Stocking Setup, Grading Transfer', branches: 'T-20-batch-culture (batches, transfers), feature/21-grade-fish-and-lobster (grading)' });
+AqMock.screens(['alert-center', 'stocking', 'transfer'], 'alert-center');
+
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var P = AqPlan, D = AqPlan.date, B = P.BASELINE;
+  document.addEventListener('mock:screen', function (e) {
+    document.querySelectorAll('#layout-menu .menu-item').forEach(function (li) {
+      var a = li.querySelector('a'); if (!a) return;
+      var h = a.getAttribute('href');
+      if (h === 'cage-reservations.html#alert-center') li.classList.toggle('active', e.detail === 'alert-center');
+      if (h === 'cage-reservations.html#stocking') li.classList.toggle('active', e.detail !== 'alert-center');
+    });
+  });
+
+  var alerts = [
+    { date: '26 Nov 2026, 06:00', type: 'Planning · Cage conflict', sev: 'danger', msg: '<strong>Cage 2</strong> is reserved in planning <a href="planning-calculator.html#baseline">"' + B.name + '" (' + B.code + ')</a> for Nursery from 01 Dec 2026 (in 5 days), but it is in use by LOB-04 until 03 Dec 2026. Free the cage or move the plan to another cage.', to: 'Ops Manager, Management', status: 'open' },
+    { date: '20 Nov 2026, 06:00', type: 'Planning · Cage check', sev: 'success', msg: 'All 2 cages reserved in planning "Kerapu cantang" (PLAN-202611-0005) are free for the start on 10 Jan 2027. Next check 05 Jan 2027.', to: 'Ops Manager', status: 'resolved' }
+  ];
+  function renderAlerts() {
+    $('alerts').innerHTML = alerts.map(function (a, i) {
+      var st = a.status === 'open' ? '<span class="badge bg-label-danger">Open</span>' : a.status === 'ack' ? '<span class="badge bg-label-warning">Acknowledged</span>' : '<span class="badge bg-label-success">Resolved</span>';
+      return '<tr><td class="text-nowrap small">' + a.date + '</td><td class="text-nowrap"><span class="badge bg-label-' + a.sev + '"><i class="bx ' + (a.sev === 'danger' ? 'bx-error' : 'bx-check-circle') + '"></i> ' + a.type + '</span></td><td class="small" style="min-width:320px">' + a.msg + '</td><td class="small text-nowrap">' + a.to + '</td><td>' + st + '</td>' +
+        '<td class="text-nowrap">' + (a.status === 'open' ? '<button class="btn btn-sm btn-outline-primary" data-ack="' + i + '" data-roles="super_admin ops_manager management">Acknowledge</button>' : '') + '</td></tr>';
+    }).join('');
+    $('alerts').querySelectorAll('[data-ack]').forEach(function (b) { b.onclick = function () { alerts[+b.dataset.ack].status = 'ack'; renderAlerts(); }; });
+    AqMock.applyRole();
+  }
+  renderAlerts();
+
+  /* reservation lookup used by Stocking Setup and Grading Transfer */
+  var RES = B.reservations.map(function (r) { return { cage: r.cage, phase: r.phase, from: r.from, until: r.until, plan: B.name, code: B.code }; })
+    .concat([{ cage: 'Cage 9', phase: 'Grow-out', from: '2027-01-10', until: '2027-06-30', plan: 'Kerapu cantang', code: 'PLAN-202611-0005' }]);
+  function opts(sel) {
+    return P.CAGES.map(function (c) {
+      var r = RES.filter(function (x) { return x.cage === c.name; })[0];
+      return '<option' + (c.name === sel ? ' selected' : '') + '>' + c.name + (r ? ' (reserved)' : '') + '</option>';
+    }).join('');
+  }
+  function check(unitId, fromId, untilId, out, what) {
+    var name = $(unitId).value.replace(' (reserved)', ''), from = $(fromId).value, until = $(untilId).value;
+    var hits = RES.filter(function (r) { return r.cage === name && D.overlap(r.from, r.until, from, until); });
+    var later = RES.filter(function (r) { return r.cage === name && hits.indexOf(r) === -1; });
+    $(out).innerHTML = hits.map(function (r) {
+      return '<div class="alert alert-warning small mb-2"><i class="bx bx-error me-2"></i><strong>' + name + ' is reserved in planning "' + r.plan + '"</strong> (' + r.code + ') for ' + r.phase + ' from ' + D.fmt(r.from) + ' to ' + D.fmt(r.until) + '. ' + what + ' here overlaps that window and will trigger a cage conflict alert 5 days before the plan starts.' +
+        '<div class="form-check mt-2"><input class="form-check-input" type="checkbox" id="' + out + '-ok"><label class="form-check-label" for="' + out + '-ok">I understand, continue anyway</label></div></div>';
+    }).join('') + later.map(function (r) {
+      return '<div class="alert alert-info small mb-2"><i class="bx bx-info-circle me-2"></i>' + name + ' is reserved in planning "' + r.plan + '" from ' + D.fmt(r.from) + '. Make sure the cage is empty before then.</div>';
+    }).join('');
+    var btn = $(out === 's-warn' ? 's-save' : 't-save');
+    var sync = function () { btn.disabled = hits.length > 0 && !($(out + '-ok') && $(out + '-ok').checked); };
+    if ($(out + '-ok')) $(out + '-ok').onchange = sync;
+    sync();
+  }
+  $('s-unit').innerHTML = opts('Cage 2'); $('t-unit').innerHTML = opts('Cage 5');
+  var sCheck = function () { check('s-unit', 's-date', 's-end', 's-warn', 'Stocking'); };
+  var tCheck = function () { check('t-unit', 't-date', 't-until', 't-warn', 'Transferring'); };
+  ['s-unit', 's-date', 's-end'].forEach(function (id) { $(id).addEventListener('change', sCheck); });
+  ['t-unit', 't-date', 't-until'].forEach(function (id) { $(id).addEventListener('change', tCheck); });
+  sCheck(); tCheck();
+  $('s-save').onclick = function () { $('s-warn').innerHTML = '<div class="alert alert-success small"><i class="bx bx-check-circle me-2"></i>Mockup: stocking saved. The plan now shows a cage conflict and the H-5 check will alert Alert Center.</div>'; };
+  $('t-save').onclick = function () { $('t-warn').innerHTML = '<div class="alert alert-success small"><i class="bx bx-check-circle me-2"></i>Mockup: transfer saved.</div>'; };
+})();
+</script>
+</body>
+</html>

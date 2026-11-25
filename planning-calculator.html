@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planning Calculator · AquaOps Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/vendor/fonts/boxicons.css">
+<link rel="stylesheet" href="assets/vendor/css/core.css">
+<link rel="stylesheet" href="assets/vendor/css/theme-default.css">
+<link rel="stylesheet" href="assets/css/demo.css">
+<link rel="stylesheet" href="css/aquaops-theme.css">
+<style>
+.gauge{height:10px;border-radius:6px;overflow:hidden;display:flex}
+.gauge>span{display:block;height:100%}
+.gauge-wrap{position:relative}
+.gauge-marker{position:absolute;top:-4px;width:3px;height:18px;background:#233446;border-radius:2px}
+input[type=range]{width:100%}
+.cls-table input{min-width:64px;padding:.25rem .4rem;font-size:.8125rem}
+.cls-table .w-num{width:76px}
+.cls-table .w-price{width:100px}
+.cage-box{border:1px solid #d9dee3;border-radius:.5rem;padding:.5rem .75rem;min-width:150px;max-width:190px;cursor:pointer}
+.cage-box.sel{border-color:#03c3ec;background:#f0fbff}
+.cage-box.off{opacity:.55;cursor:default}
+</style>
+</head>
+<body>
+<div id="mock-content" class="d-none">
+
+<!-- ===================== LIST: Planning Baselines ===================== -->
+<div id="screen-baselines">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">Planning Calculator</h4>
+    <a href="planning-calculator.html#calculator" class="btn btn-primary" data-roles="super_admin ops_manager management analyst"><i class="bx bx-plus me-1"></i> New simulation</a>
+  </div>
+  <div class="alert alert-info border-0 shadow-sm mb-4" data-roles="field_team" role="alert">
+    <i class="bx bx-info-circle me-2"></i>Field Team only sees the technical part of baselines linked to a stocking (density, seed count, DOC, SR, FCR). Prices and margins are hidden.
+  </div>
+  <div class="card mb-4">
+    <div class="card-body">
+      <p class="fw-bold">Filter :</p>
+      <form class="row g-3" onsubmit="return false">
+        <div class="col-md"><select class="form-select" aria-label="Species"><option>Any species</option><option>Bawal bintang (Trachinotus blochii)</option><option>Kerapu cantang</option><option>Lobster pasir</option></select></div>
+        <div class="col-md"><select class="form-select" aria-label="Status"><option>Any status</option><option>Draft</option><option>Active</option><option>Archived</option></select></div>
+        <div class="col-md"><input type="text" class="form-control" placeholder="Baseline code"></div>
+        <div class="col-md d-flex"><button type="submit" class="btn btn-outline-primary w-100 me-2">Filter</button><button type="button" class="btn btn-outline-danger">Clear</button></div>
+      </form>
+    </div>
+  </div>
+  <div class="card">
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead><tr><th>Code</th><th>Name</th><th>Species</th><th>Implementation</th><th>Feed Simulation</th><th class="text-end" data-hide-roles="field_team">Margin</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>PLAN-202611-0004 <span class="text-muted">v1</span></td><td>Batch 2 Pompano two-phase</td><td>Bawal bintang</td><td>01 Dec 2026 - 31 Jul 2027</td><td>FS-202611-0002</td><td class="text-end font-monospace text-danger" data-hide-roles="field_team">-2.19%</td><td><span class="badge bg-label-success"><i class="bx bx-lock-alt"></i> Active</span> <span class="badge bg-label-danger"><i class="bx bx-error"></i> 1 cage conflict</span></td><td><a href="#baseline" class="btn btn-sm btn-outline-primary">View</a></td></tr>
+          <tr><td>PLAN-202611-0005 <span class="text-muted">v1</span></td><td>Kerapu cantang</td><td>Kerapu cantang</td><td>10 Jan 2027 - 30 Jun 2027</td><td>FS-202611-0003</td><td class="text-end font-monospace" data-hide-roles="field_team">21.10%</td><td><span class="badge bg-label-success"><i class="bx bx-lock-alt"></i> Active</span></td><td><a href="#baseline" class="btn btn-sm btn-outline-primary">View</a></td></tr>
+          <tr><td>PLAN-202611-0006 <span class="text-muted">v1</span></td><td>Batch 3 Pompano</td><td>Bawal bintang</td><td>01 Mar 2027 - 30 Sep 2027</td><td><span class="badge bg-label-warning">Not generated</span></td><td class="text-end font-monospace" data-hide-roles="field_team">-</td><td><span class="badge bg-label-secondary"><i class="bx bx-edit"></i> Draft</span></td><td><a href="#calculator" class="btn btn-sm btn-outline-primary">Edit</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card-body small text-muted">Showing 1 to 3 of 3 results · sample data</div>
+  </div>
+</div>
+
+<!-- ===================== FORM: Calculator ===================== -->
+<div id="screen-calculator" class="d-none">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h4 class="fw-bold mb-1">New Planning Simulation <span class="badge bg-label-secondary align-middle ms-1" id="draft-badge"></span></h4>
+      <p class="text-muted small mb-0">Simulate density, harvest and gross profit before stocking. All figures recalculate instantly.</p>
+    </div>
+    <a href="#baselines" class="btn btn-outline-secondary btn-sm"><i class="bx bx-arrow-back me-1"></i> Back</a>
+  </div>
+
+  <div id="feed-banner"></div>
+
+  <div class="alert alert-warning border-0 shadow-sm mb-4" data-roles="field_team" role="alert">
+    <i class="bx bx-error-circle me-2"></i>Field Team does not create simulations. This screen is shown for review; prices and margins are hidden.
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-xxl-12 col-lg-10">
+      <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-4">
+          <form onsubmit="return false">
+
+            <h6 class="fw-bold text-primary mb-3 d-flex align-items-center"><i class="bx bx-info-circle me-2 fs-5"></i> Plan Setup</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Mode <span class="text-danger">*</span></label>
+                <div class="d-flex gap-3">
+                  <div class="form-check"><input class="form-check-input" type="radio" name="mode" id="mode-infra" checked><label class="form-check-label" for="mode-infra">Existing infrastructure</label></div>
+                  <div class="form-check"><input class="form-check-input" type="radio" name="mode" id="mode-sandbox"><label class="form-check-label" for="mode-sandbox">Custom sandbox</label></div>
+                </div>
+                <div class="form-text" id="mode-note"></div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold" for="p-name">Plan name <span class="text-danger">*</span></label>
+                <input id="p-name" type="text" class="form-control" value="Batch 2 Pompano two-phase">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Implementation target date <span class="text-danger">*</span></label>
+                <div class="row g-2">
+                  <div class="col-6"><label class="form-label small mb-1" for="p-start">Start</label><input id="p-start" type="date" class="form-control" value="2026-12-01"></div>
+                  <div class="col-6"><label class="form-label small mb-1" for="p-end">End</label><input id="p-end" type="date" class="form-control" value="2027-07-31"></div>
+                </div>
+                <div id="date-note" class="mt-2"></div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-semibold" for="p-site">Site <span class="text-danger" id="site-req">*</span><span class="text-muted fw-normal d-none" id="site-opt">(optional)</span></label>
+                <select id="p-site" class="form-select"><option value="">No site yet</option><option selected>Ekas (KPG-EKS)</option><option>Kupang</option></select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-semibold" for="p-species">Species <span class="text-danger">*</span></label>
+                <select id="p-species" class="form-select">
+                  <option value="pompano">Bawal bintang (Trachinotus blochii)</option>
+                  <option value="cantang">Kerapu cantang</option>
+                  <option value="lobster">Lobster pasir (Panulirus homarus)</option>
+                </select>
+                <div class="form-text">Plan type: two-phase (nursery to grow-out)</div>
+              </div>
+              <div class="col-md-8">
+                <label class="form-label fw-semibold">Scenario preset</label>
+                <div class="btn-group w-100" role="group" aria-label="Scenario preset">
+                  <button type="button" class="btn btn-outline-primary" data-preset="worst">Worst</button>
+                  <button type="button" class="btn btn-outline-primary" data-preset="normal">Normal</button>
+                  <button type="button" class="btn btn-outline-primary" data-preset="best">Best</button>
+                </div>
+                <div class="form-text" id="preset-note"></div>
+              </div>
+              <div class="col-md-4" data-hide-roles="field_team">
+                <label class="form-label fw-semibold" for="p-margin">Target margin (%)</label>
+                <input id="p-margin" type="number" class="form-control" value="15" step="0.5">
+                <div class="form-text">Species default: 15%</div>
+              </div>
+            </div>
+
+            <div id="cage-conflict" class="mt-3"></div>
+
+            <hr class="my-4 opacity-25">
+
+            <h6 class="fw-bold text-primary mb-3 d-flex align-items-center flex-wrap"><i class="bx bx-cube me-2 fs-5"></i> Phase 1: Nursery <span class="small text-muted fw-normal ms-2" id="n-window"></span></h6>
+            <div class="row g-3">
+              <div class="col-12">
+                <div class="infra-only"><label class="form-label fw-semibold">Cages <span class="text-danger">*</span></label><div class="d-flex flex-wrap gap-2" id="n-cages"></div></div>
+                <div class="sandbox-only d-none"><label class="form-label fw-semibold">Nursery cage size <span class="text-danger">*</span></label>
+                  <div class="row g-2" style="max-width:640px">
+                    <div class="col-3"><label class="form-label small mb-1" for="n-l">Length (m)</label><input id="n-l" type="number" step="0.1" class="form-control" value="3"></div>
+                    <div class="col-3"><label class="form-label small mb-1" for="n-w">Width (m)</label><input id="n-w" type="number" step="0.1" class="form-control" value="3"></div>
+                    <div class="col-3 depth-field"><label class="form-label small mb-1" for="n-d">Depth (m)</label><input id="n-d" type="number" step="0.1" class="form-control" value="3"></div>
+                    <div class="col-3"><label class="form-label small mb-1" for="n-q">Quantity</label><input id="n-q" type="number" class="form-control" value="2"></div>
+                  </div></div>
+                <div class="form-text mt-2" id="n-vol"></div>
+              </div>
+              <div class="col-md-3"><label class="form-label fw-semibold" for="n-density">Density (heads/<span class="u-cap">m³</span>)</label><input id="n-density" type="number" class="form-control" value="180"></div>
+              <div class="col-md-3"><span class="form-label fw-semibold d-block">Seed needed</span><span class="fs-4 fw-bold" id="n-seed"></span></div>
+              <div class="col-md-3"><span class="form-label fw-semibold d-block">Heads out (transfer)</span><span class="fs-4 fw-bold" id="n-out"></span></div>
+              <div class="col-12"><div id="n-gauge"></div></div>
+              <div class="col-6 col-md-2"><label class="form-label fw-semibold" for="n-size">Seed size (g)</label><input id="n-size" type="number" class="form-control" value="5"></div>
+              <div class="col-6 col-md-2"><label class="form-label fw-semibold" for="n-tsize">Transfer (g)</label><input id="n-tsize" type="number" class="form-control" value="80"></div>
+              <div class="col-6 col-md-2"><label class="form-label fw-semibold" for="n-doc">DOC</label><input id="n-doc" type="number" class="form-control" value="60"></div>
+              <div class="col-6 col-md-2"><label class="form-label fw-semibold" for="n-sr">SR (%)</label><input id="n-sr" type="number" class="form-control" value="90"></div>
+              <div class="col-6 col-md-2"><label class="form-label fw-semibold" for="n-fcr">FCR (target)</label><input id="n-fcr" type="number" class="form-control" value="1.2" step="0.1"></div>
+              <div class="col-6 col-md-2" data-hide-roles="field_team"><label class="form-label fw-semibold" for="n-seedp">Seed price (IDR/head)</label><input id="n-seedp" type="number" class="form-control" value="1500"><div class="form-text">Purchase average COGS/Seed</div></div>
+            </div>
+
+            <hr class="my-4 opacity-25">
+
+            <h6 class="fw-bold text-primary mb-3 d-flex align-items-center flex-wrap"><i class="bx bx-shape-square me-2 fs-5"></i> Phase 2: Grow-out <span class="small text-muted fw-normal ms-2" id="g-window"></span></h6>
+            <div class="row g-3">
+              <div class="col-12">
+                <div class="infra-only"><label class="form-label fw-semibold">Cages <span class="text-danger">*</span></label><div class="d-flex flex-wrap gap-2" id="g-cages"></div></div>
+                <div class="sandbox-only d-none"><label class="form-label fw-semibold">Grow-out cage size <span class="text-danger">*</span></label>
+                  <div class="row g-2" style="max-width:640px">
+                    <div class="col-3"><label class="form-label small mb-1" for="g-l">Length (m)</label><input id="g-l" type="number" step="0.1" class="form-control" value="4"></div>
+                    <div class="col-3"><label class="form-label small mb-1" for="g-w">Width (m)</label><input id="g-w" type="number" step="0.1" class="form-control" value="4"></div>
+                    <div class="col-3 depth-field"><label class="form-label small mb-1" for="g-d">Depth (m)</label><input id="g-d" type="number" step="0.1" class="form-control" value="3"></div>
+                    <div class="col-3"><label class="form-label small mb-1" for="g-q">Quantity</label><input id="g-q" type="number" class="form-control" value="4"></div>
+                  </div></div>
+                <div class="form-text mt-2" id="g-vol"></div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-semibold" for="g-dens">Density (heads/<span class="u-cap">m³</span>) <span class="text-danger">*</span></label>
+                <input id="g-dens" type="number" step="0.1" min="0" class="form-control" value="45.6">
+                <input id="g-dens-range" type="range" min="0" max="80" step="0.1" value="45.6" class="mt-2" aria-label="Grow-out density slider">
+                <div class="form-check mt-1"><input class="form-check-input" type="checkbox" id="g-match" checked><label class="form-check-label small" for="g-match">Match nursery output</label></div>
+              </div>
+              <div class="col-md-3"><span class="form-label fw-semibold d-block">Heads stocked</span><span class="fs-4 fw-bold" id="g-in"></span><span class="small text-muted d-block" id="g-in-note"></span></div>
+              <div class="col-md-3"><span class="form-label fw-semibold d-block">Start MBW</span><span class="fs-4 fw-bold" id="g-w0"></span><span class="small text-muted d-block">From nursery transfer size</span></div>
+              <div class="col-md-3" data-hide-roles="field_team"><label class="form-label fw-semibold" for="g-other">Other direct cost (IDR/kg)</label><input id="g-other" type="number" class="form-control" value="1500"><div class="form-text">Closed-out average</div></div>
+              <div class="col-12"><div id="g-gauge"></div><div id="g-capacity"></div></div>
+            </div>
+
+            <hr class="my-4 opacity-25">
+
+            <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+              <h6 class="fw-bold text-primary mb-0 d-flex align-items-center"><i class="bx bx-slider-alt me-2 fs-5"></i> Harvest Allocation (size classes)</h6>
+              <button type="button" class="btn btn-outline-primary btn-sm" id="btn-add-class"><i class="bx bx-plus me-1"></i> Add size class</button>
+            </div>
+            <p class="small text-muted">Each size class has its own target MBW, DOC, SR and FCR. Heads per class = heads stocked × allocation; harvested heads = allocated heads × SR.</p>
+            <div class="table-responsive">
+              <table class="table table-sm align-middle cls-table text-nowrap">
+                <thead><tr><th>Size class (g)</th><th>Target MBW (g)</th><th>Allocation %</th><th>DOC</th><th>SR %</th><th>FCR target</th><th class="sim-col">FCR simulated</th><th class="text-end">Heads harvested</th><th class="text-end">Biomass (kg)</th><th>Harvest date</th><th data-hide-roles="field_team">Local (IDR/kg)</th><th data-hide-roles="field_team">Export %</th><th data-hide-roles="field_team">Export (IDR/kg)</th><th></th></tr></thead>
+                <tbody id="alloc-body"></tbody>
+                <tfoot><tr class="fw-semibold"><td>Total</td><td></td><td><span id="alloc-total" class="badge"></span></td><td colspan="3"></td><td class="sim-col"></td><td class="text-end" id="alloc-heads"></td><td class="text-end" id="alloc-kg"></td><td colspan="5"></td></tr></tfoot>
+              </table>
+            </div>
+            <div id="class-warn"></div>
+            <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="btn-balance"><i class="bx bx-refresh me-1"></i> Auto-Balance to 100%</button>
+
+            <div class="p-3 mt-4 rounded-3 bg-light border d-flex flex-wrap align-items-center justify-content-between gap-3" data-roles="super_admin ops_manager management analyst">
+              <div>
+                <div class="fw-semibold"><i class="bx bx-dish me-1 text-primary"></i> Feed requirement</div>
+                <div class="small text-muted" id="feed-status-text"></div>
+              </div>
+              <button type="button" class="btn btn-primary" id="btn-generate"></button>
+            </div>
+
+            <div data-hide-roles="field_team">
+              <hr class="my-4 opacity-25">
+              <h6 class="fw-bold text-primary mb-3 d-flex align-items-center"><i class="bx bx-dollar-circle me-2 fs-5"></i> Profit Preview</h6>
+              <div id="profit-warn"></div>
+              <div class="row g-3 mb-3" id="kpis"></div>
+              <div class="table-responsive">
+                <table class="table table-sm">
+                  <thead><tr><th>Cost component</th><th class="text-end">Amount</th><th>Source</th></tr></thead>
+                  <tbody id="cost-body"></tbody>
+                </table>
+              </div>
+              <h6 class="fw-semibold mt-4 mb-2">Price guidance per size class</h6>
+              <div class="table-responsive">
+                <table class="table table-sm text-nowrap">
+                  <thead><tr><th>Size class</th><th class="text-end">Market (local)</th><th class="text-end">Break-even</th><th class="text-end">Suggested (target margin)</th><th class="text-end">Margin / kg</th><th>Status</th></tr></thead>
+                  <tbody id="price-body"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div data-roles="field_team">
+              <hr class="my-4 opacity-25">
+              <h6 class="fw-bold text-primary mb-3 d-flex align-items-center"><i class="bx bx-target-lock me-2 fs-5"></i> Technical Targets</h6>
+              <div class="row g-3" id="tech-kpis"></div>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-end flex-wrap gap-2 pt-3 mt-4 border-top" data-roles="super_admin ops_manager management analyst">
+              <span class="small text-muted me-auto" id="save-hint"></span>
+              <a href="#baselines" class="btn btn-outline-secondary px-4">Cancel</a>
+              <button type="button" class="btn btn-outline-primary px-4" id="btn-draft"><i class="bx bx-save me-1"></i> Save Draft</button>
+              <a href="#baseline" class="btn btn-primary px-4" id="btn-save"><i class="bx bx-lock-alt me-1"></i> Save as baseline</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SHOW: Baseline ===================== -->
+<div id="screen-baseline" class="d-none">
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3 p-4">
+      <div>
+        <nav aria-label="breadcrumb"><ol class="breadcrumb mb-1 fs-7 text-uppercase fw-semibold"><li class="breadcrumb-item"><a href="#baselines">Planning Calculator</a></li><li class="breadcrumb-item active text-primary" aria-current="page">PLAN-202611-0004</li></ol></nav>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <h3 class="fw-bold mb-0 text-dark">PLAN-202611-0004 <span class="text-muted fs-5">v1</span></h3>
+          <span class="badge bg-label-success rounded-pill px-3 py-2"><i class="bx bx-lock-alt"></i> Active (locked)</span>
+        </div>
+        <p class="text-muted mb-0 mt-1">Batch 2 Pompano two-phase · Bawal bintang · Ekas · Normal scenario · Implementation 01 Dec 2026 - 31 Jul 2027</p>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-secondary d-inline-flex align-items-center gap-1" href="#baselines"><i class="bx bx-arrow-back"></i> Back</a>
+        <a class="btn btn-outline-primary d-inline-flex align-items-center gap-1" href="#calculator" data-roles="super_admin ops_manager management analyst"><i class="bx bx-copy"></i> Clone to v2</a>
+        <a class="btn btn-outline-primary d-inline-flex align-items-center gap-1" href="feed-simulation.html#plans" data-hide-roles="field_team"><i class="bx bx-dish"></i> FS-202611-0002</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-danger border-0 shadow-sm mb-4"><i class="bx bx-error me-2"></i><strong>Cage conflict:</strong> Cage 2 is reserved for Nursery from 01 Dec 2026, but LOB-04 was stocked there on 22 Nov 2026 (until 03 Dec 2026). Alert sent to <a href="cage-reservations.html#alert-center">Alert Center</a> on 26 Nov 2026 (5 days before start).</div>
+
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent border-bottom py-3"><h5 class="card-title fw-bold mb-0 text-primary"><i class="bx bx-info-circle me-2"></i>Plan Summary</h5></div>
+    <div class="card-body pt-3">
+      <div class="row g-3">
+        <div class="col-sm-6 col-md-3"><span class="text-muted fs-7 d-block">Seed stocked (nursery)</span><span class="fs-4 fw-bold">9,720 heads</span><span class="small text-muted d-block">180 heads/m³ · Cage 1, Cage 2</span></div>
+        <div class="col-sm-6 col-md-3"><span class="text-muted fs-7 d-block">Grow-out density</span><span class="fs-4 fw-bold">45.56 heads/m³</span><span class="small d-block"><span class="badge bg-label-success">Within 40-50</span> Cage 4-7</span></div>
+        <div class="col-sm-6 col-md-3"><span class="text-muted fs-7 d-block">Harvest</span><span class="fs-4 fw-bold">3653.15 kg</span><span class="small text-muted d-block">7,470 heads · DOC 60 + 130 to 175</span></div>
+        <div class="col-sm-6 col-md-3" data-hide-roles="field_team"><span class="text-muted fs-7 d-block">Projected gross profit</span><span class="fs-5 fw-bold text-danger font-monospace">IDR -5.877.699,69</span><span class="small d-block"><span class="badge bg-label-danger">-2.19% below target 15%</span></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent border-bottom py-3"><h5 class="card-title fw-bold mb-0 text-primary"><i class="bx bx-slider-alt me-2"></i>Size Classes</h5></div>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead><tr><th>Size class</th><th class="text-end">Target MBW</th><th class="text-end">Allocation</th><th class="text-end">DOC</th><th class="text-end">SR</th><th class="text-end">FCR target / simulated</th><th>Harvest date</th></tr></thead>
+        <tbody>
+          <tr><td>400-450 g</td><td class="text-end">425 g</td><td class="text-end">20%</td><td class="text-end">130</td><td class="text-end">88%</td><td class="text-end">1.70 / <span class="text-warning fw-semibold">3.26</span></td><td>09 Jun 2027</td></tr>
+          <tr><td>450-500 g</td><td class="text-end">475 g</td><td class="text-end">40%</td><td class="text-end">145</td><td class="text-end">86%</td><td class="text-end">1.80 / <span class="text-warning fw-semibold">3.49</span></td><td>24 Jun 2027</td></tr>
+          <tr><td>500-550 g</td><td class="text-end">525 g</td><td class="text-end">30%</td><td class="text-end">160</td><td class="text-end">84%</td><td class="text-end">1.85 / <span class="text-warning fw-semibold">3.74</span></td><td>09 Jul 2027</td></tr>
+          <tr><td>550-600 g</td><td class="text-end">575 g</td><td class="text-end">10%</td><td class="text-end">175</td><td class="text-end">82%</td><td class="text-end">1.90 / <span class="text-warning fw-semibold">4.00</span></td><td>24 Jul 2027</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent border-bottom py-3"><h5 class="card-title fw-bold mb-0 text-primary"><i class="bx bx-grid-alt me-2"></i>Cage Reservations</h5></div>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead><tr><th>Cage</th><th>Phase</th><th>Reserved</th><th>Status</th></tr></thead>
+        <tbody id="bl-res"></tbody>
+      </table>
+    </div>
+    <div class="card-body small text-muted pt-2">Rule: 5 days before a reservation starts, the system checks the cage. If it has an active stocking or another reservation, an alert goes to Alert Center. Stocking Setup and Grading Transfer also warn when a reserved cage is picked.</div>
+  </div>
+
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent border-bottom py-3"><h5 class="card-title fw-bold mb-0 text-primary"><i class="bx bx-history me-2"></i>Version History</h5></div>
+    <div class="card-body pt-3"><div class="timeline ps-2" id="bl-history"></div></div>
+  </div>
+</div>
+
+</div>
+
+<script src="assets/mock/shell.js"></script>
+<script src="assets/mock/planning-data.js"></script>
+<script>
+AqMock.init({ active: 'planning', title: 'Planning · Commodity Planning Calculator', branches: 'T-20-batch-culture (batch link), T-11-purchasing (seed price default), feature/feed-actual-lines + feature/28-feed-inventory-ledger (feed catalog for Feed Simulation)' });
+AqMock.screens(['baselines', 'calculator', 'baseline'], 'calculator');
+
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var idr = AqMock.idr, int = AqMock.int, num = AqMock.num, P = AqPlan, D = AqPlan.date;
+  var SPECIES = {
+    pompano: { basis: 'm3', nursery: [150, 200], growout: [40, 50], src: 'Juknis Pembesaran Bawal Bintang, BBPBL Lampung, KKP 2017', status: 'Verified' },
+    cantang: { basis: 'm3', nursery: [150, 200], growout: [15, 20], src: 'RSNI3 9265:2024 Pembesaran ikan kerapu, BSN', status: 'Draft standard' },
+    lobster: { basis: 'm2', nursery: [20, 30], growout: [6, 10], src: 'UNAIR news article 2024 (not a standard)', status: 'Unverified' }
+  };
+  var PRESETS = { worst: { sr: -20, adj: -10 }, normal: { sr: 0, adj: 0 }, best: { sr: 7, adj: 10 } };
+  var S = {
+    preset: 'normal', nCages: [1, 2], gCages: [4, 5, 6, 7], feed: null, code: null,
+    classes: [
+      { min: 400, max: 450, mbw: 425, pct: 20, doc: 130, sr0: 88, sr: 88, fcr: 1.7, local: 60000, exp: 0, expPrice: 95000 },
+      { min: 450, max: 500, mbw: 475, pct: 40, doc: 145, sr0: 86, sr: 86, fcr: 1.8, local: 70000, exp: 0, expPrice: 105000 },
+      { min: 500, max: 550, mbw: 525, pct: 30, doc: 160, sr0: 84, sr: 84, fcr: 1.85, local: 80000, exp: 0, expPrice: 115000 },
+      { min: 550, max: 600, mbw: 575, pct: 10, doc: 175, sr0: 82, sr: 82, fcr: 1.9, local: 90000, exp: 0, expPrice: 125000 }
+    ]
+  };
+  var FIELDS = ['p-name', 'p-start', 'p-end', 'p-site', 'p-species', 'p-margin', 'n-l', 'n-w', 'n-d', 'n-q', 'g-l', 'g-w', 'g-d', 'g-q', 'n-density', 'n-size', 'n-tsize', 'n-doc', 'n-sr', 'n-fcr', 'n-seedp', 'g-dens', 'g-other'];
+  var U = 'm³', M2 = false, SANDBOX = false, R = {};
+
+  /* restore the draft when coming back from Feed Simulation */
+  var incoming = P.decode();
+  if (incoming && incoming.plan) {
+    var pl = incoming.plan;
+    Object.keys(pl.fields || {}).forEach(function (k) { if ($(k)) $(k).value = pl.fields[k]; });
+    $('mode-sandbox').checked = !!pl.sandbox; $('mode-infra').checked = !pl.sandbox;
+    $('g-match').checked = pl.match !== false;
+    S.preset = pl.preset; S.nCages = pl.nCages; S.gCages = pl.gCages; S.classes = pl.classes; S.code = pl.code;
+    S.feed = incoming.feed || null;
+  }
+
+  function v(id) { return parseFloat($(id).value) || 0; }
+  function cageById(id) { return P.CAGES.filter(function (c) { return c.id === id; })[0]; }
+  function capOf(c) { return M2 ? c.m2 : c.m3; }
+
+  function gauge(id, dens, range, sp) {
+    var max = range[1] * 1.2, scaleMax = max * 1.25;
+    var p = function (x) { return Math.min(100, x / scaleMax * 100); };
+    var zone, cls;
+    if (dens < range[0]) { zone = 'Capacity not used'; cls = 'bg-label-secondary'; }
+    else if (dens <= range[1]) { zone = 'Within standard'; cls = 'bg-label-success'; }
+    else if (dens <= max) { zone = 'Above standard (warning band +20%)'; cls = 'bg-label-warning'; }
+    else { zone = 'Overstocked'; cls = 'bg-label-danger'; }
+    $(id).innerHTML = '<div class="gauge-wrap mb-1"><div class="gauge">' +
+      '<span style="width:' + p(range[0]) + '%;background:#d9dee3"></span>' +
+      '<span style="width:' + (p(range[1]) - p(range[0])) + '%;background:#71dd37"></span>' +
+      '<span style="width:' + (p(max) - p(range[1])) + '%;background:#ffab00"></span>' +
+      '<span style="width:' + (100 - p(max)) + '%;background:#ff3e1d"></span></div>' +
+      '<span class="gauge-marker" style="left:calc(' + p(dens) + '% - 1px)"></span></div>' +
+      '<div class="d-flex flex-wrap gap-2 align-items-center small"><span class="badge ' + cls + '">' + dens.toFixed(1) + ' heads/' + U + ' · ' + zone + '</span>' +
+      '<span class="text-muted">Standard ' + range[0] + '-' + range[1] + ' heads/' + U + ' · ' + sp.src + '</span>' +
+      (sp.status !== 'Verified' ? '<span class="badge bg-label-warning">' + (sp.status === 'Draft standard' ? 'Draft standard' : 'Standard not yet verified') + '</span>' : '') + '</div>';
+  }
+
+  /* cages: one pool (Cage 1-10) for nursery and grow-out */
+  function cageStatus(c, from, until) {
+    var o = P.OCC[c.id];
+    if (!o) return ['success', 'Available'];
+    if (D.overlap(o.from, o.until, from, until)) return ['danger', o.kind + ': ' + o.ref + ' until ' + D.fmt(o.until)];
+    return ['secondary', o.kind + ' until ' + D.fmt(o.until) + ', free in this window'];
+  }
+  function renderCages(target, phase, win) {
+    var mine = phase === 'n' ? S.nCages : S.gCages, other = phase === 'n' ? S.gCages : S.nCages;
+    $(target).innerHTML = P.CAGES.map(function (c) {
+      var sel = mine.indexOf(c.id) > -1, taken = other.indexOf(c.id) > -1, st = cageStatus(c, win[0], win[1]);
+      return '<label class="cage-box' + (sel ? ' sel' : '') + (taken ? ' off' : '') + '" for="' + phase + 'c' + c.id + '">' +
+        '<span class="form-check mb-1 d-block"><input class="form-check-input" type="checkbox" id="' + phase + 'c' + c.id + '" data-cage="' + c.id + '" data-phase="' + phase + '"' + (sel ? ' checked' : '') + (taken ? ' disabled' : '') + '>' +
+        '<span class="fw-semibold">' + c.name + '</span> <span class="text-muted small">' + capOf(c) + ' ' + U + '</span></span>' +
+        '<span class="d-block small lh-sm text-' + (taken ? 'muted' : st[0] === 'secondary' ? 'muted' : st[0]) + '"><i class="bx ' + (taken ? 'bx-minus-circle' : st[0] === 'danger' ? 'bx-error' : st[0] === 'success' ? 'bx-check-circle' : 'bx-time-five') + ' me-1"></i>' + (taken ? 'Used in ' + (phase === 'n' ? 'Grow-out' : 'Nursery') : st[1]) + '</span></label>';
+    }).join('');
+    $(target).querySelectorAll('[data-cage]').forEach(function (el) {
+      el.addEventListener('change', function () {
+        var list = el.dataset.phase === 'n' ? S.nCages : S.gCages, id = +el.dataset.cage;
+        if (el.checked) list.push(id); else list.splice(list.indexOf(id), 1);
+        list.sort(function (a, b) { return a - b; });
+        calc();
+      });
+    });
+  }
+  function capacity(pre, list) {
+    if (!SANDBOX) {
+      var tot = list.reduce(function (s, id) { return s + capOf(cageById(id)); }, 0);
+      return { total: tot, one: list.length ? capOf(cageById(list[0])) : (M2 ? 16 : 48), count: list.length, note: list.length + ' cage(s): ' + (list.map(function (id) { return cageById(id).name; }).join(', ') || '-') + ' = ' };
+    }
+    var one = v(pre + '-l') * v(pre + '-w') * (M2 ? 1 : v(pre + '-d')), q = Math.max(0, Math.round(v(pre + '-q')));
+    return { total: one * q, one: one, count: q, note: q + (q === 1 ? ' cage' : ' cages') + ' of ' + v(pre + '-l') + ' × ' + v(pre + '-w') + (M2 ? '' : ' × ' + v(pre + '-d')) + ' m = ' };
+  }
+
+  /* size classes */
+  function renderClasses() {
+    var simCol = !!S.feed;
+    $('alloc-body').innerHTML = S.classes.map(function (c, i) {
+      var r = R.rows[i], bad = c.mbw < c.min || c.mbw > c.max;
+      var simF = S.feed && S.feed.byClass && S.feed.byClass[i] ? S.feed.byClass[i].fcr : null;
+      var inp = function (f, cls, step, lab) { return '<input type="number"' + (step ? ' step="' + step + '"' : '') + ' class="form-control form-control-sm ' + cls + '" value="' + c[f] + '" data-c="' + i + '" data-f="' + f + '" aria-label="' + lab + '">'; };
+      return '<tr>' +
+        '<td><div class="d-flex align-items-center gap-1">' + inp('min', 'w-num', 0, 'Min weight') + '-' + inp('max', 'w-num', 0, 'Max weight') + '</div></td>' +
+        '<td>' + inp('mbw', 'w-num' + (bad ? ' is-invalid' : ''), 0, 'Target MBW') + '</td>' +
+        '<td>' + inp('pct', 'w-num', 0.01, 'Allocation') + '</td>' +
+        '<td>' + inp('doc', 'w-num', 0, 'DOC') + '</td>' +
+        '<td>' + inp('sr', 'w-num', 0.5, 'SR') + '</td>' +
+        '<td>' + inp('fcr', 'w-num', 0.05, 'FCR target') + '</td>' +
+        '<td class="sim-col">' + (simF ? '<span class="' + (simF > c.fcr * 1.1 ? 'text-warning fw-semibold' : '') + '">' + simF.toFixed(2) + '</span>' : '-') + '</td>' +
+        '<td class="text-end">' + int(r.harvested) + '</td><td class="text-end">' + num(r.kg) + '</td>' +
+        '<td class="small">' + D.fmt(r.date) + '</td>' +
+        '<td data-hide-roles="field_team">' + inp('local', 'w-price', 0, 'Local price') + '</td>' +
+        '<td data-hide-roles="field_team">' + inp('exp', 'w-num', 0, 'Export share') + '</td>' +
+        '<td data-hide-roles="field_team">' + inp('expPrice', 'w-price', 0, 'Export price') + '</td>' +
+        '<td><button type="button" class="btn btn-sm btn-outline-danger" data-del="' + i + '"' + (S.classes.length < 2 ? ' disabled' : '') + ' aria-label="Remove size class"><i class="bx bx-trash"></i></button></td></tr>';
+    }).join('');
+    document.querySelectorAll('.sim-col').forEach(function (e) { e.classList.toggle('d-none', !simCol); });
+    $('alloc-body').querySelectorAll('[data-f]').forEach(function (el) {
+      el.addEventListener('change', function () {
+        var c = S.classes[+el.dataset.c], f = el.dataset.f;
+        c[f] = parseFloat(el.value) || 0;
+        if (f === 'sr') { S.preset = 'custom'; c.sr0 = c.sr; }
+        if ((f === 'min' || f === 'max') && (c.mbw < c.min || c.mbw > c.max)) c.mbw = Math.round((c.min + c.max) / 2);
+        calc();
+      });
+    });
+    $('alloc-body').querySelectorAll('[data-del]').forEach(function (b) { b.addEventListener('click', function () { S.classes.splice(+b.dataset.del, 1); calc(); }); });
+  }
+
+  function calc() {
+    var sp = SPECIES[$('p-species').value];
+    SANDBOX = $('mode-sandbox').checked; M2 = sp.basis === 'm2'; U = M2 ? 'm²' : 'm³';
+    var margin = v('p-margin') / 100, start = $('p-start').value || P.TODAY;
+    document.querySelectorAll('.u-cap').forEach(function (e) { e.textContent = U; });
+    document.querySelectorAll('.infra-only').forEach(function (e) { e.classList.toggle('d-none', SANDBOX); });
+    document.querySelectorAll('.sandbox-only').forEach(function (e) { e.classList.toggle('d-none', !SANDBOX); });
+    document.querySelectorAll('.depth-field').forEach(function (e) { e.classList.toggle('d-none', M2); });
+    $('site-req').classList.toggle('d-none', SANDBOX); $('site-opt').classList.toggle('d-none', !SANDBOX);
+    $('mode-note').textContent = SANDBOX ? 'Type cage dimensions to evaluate cages you do not have yet.' : 'Pick registered cages (Cage 1-10). One pool for nursery and grow-out.';
+    document.querySelectorAll('[data-preset]').forEach(function (b) { b.classList.toggle('active', b.dataset.preset === S.preset); });
+    var pr = PRESETS[S.preset] || { sr: 0, adj: 0 };
+    $('preset-note').textContent = S.preset === 'custom' ? 'Custom: SR edited per size class, market price 0%.' : S.preset.charAt(0).toUpperCase() + S.preset.slice(1) + ': SR per size class ' + (pr.sr >= 0 ? '+' : '') + pr.sr + ' pt, market price ' + (pr.adj >= 0 ? '+' : '') + pr.adj + '%.';
+
+    /* implementation dates */
+    var nDoc = v('n-doc'), maxDoc = Math.max.apply(null, S.classes.map(function (c) { return c.doc; }).concat([0]));
+    var nEnd = D.add(start, nDoc), gEnd = D.add(nEnd, maxDoc), end = $('p-end').value;
+    $('n-window').textContent = D.fmt(start) + ' - ' + D.fmt(nEnd);
+    $('g-window').textContent = D.fmt(nEnd) + ' - ' + D.fmt(gEnd);
+    $('date-note').innerHTML = end && D.days(end, gEnd) > 0
+      ? '<div class="alert alert-warning small py-2 mb-0"><i class="bx bx-error-circle me-1"></i>End is before the last harvest (' + D.fmt(gEnd) + '). <a href="#" id="use-end">Use ' + D.fmt(gEnd) + '</a></div>'
+      : '<div class="small text-muted">Nursery ' + nDoc + ' days + longest size class ' + maxDoc + ' days, last harvest ' + D.fmt(gEnd) + '.</div>';
+    if ($('use-end')) $('use-end').onclick = function (e) { e.preventDefault(); $('p-end').value = gEnd; calc(); };
+
+    /* nursery */
+    var nC = capacity('n', S.nCages), nVol = nC.total;
+    $('n-vol').innerHTML = nC.note + '<span class="fw-semibold">' + num(nVol, nVol % 1 ? 2 : 0) + ' ' + U + '</span>';
+    var nSeed = Math.round(nVol * v('n-density')), nOut = Math.round(nSeed * v('n-sr') / 100);
+    var nGainKg = Math.max(0, nOut * v('n-tsize') / 1000 - nSeed * v('n-size') / 1000);
+    var seedCost = nSeed * v('n-seedp');
+    $('n-seed').textContent = int(nSeed) + ' heads'; $('n-out').textContent = int(nOut) + ' heads';
+    gauge('n-gauge', v('n-density'), sp.nursery, sp);
+
+    /* grow-out */
+    var gC = capacity('g', S.gCages), gVol = gC.total;
+    $('g-vol').innerHTML = gC.note + '<span class="fw-semibold">' + num(gVol, gVol % 1 ? 2 : 0) + ' ' + U + '</span>';
+    var match = $('g-match').checked;
+    if (match && gVol > 0) $('g-dens').value = Math.round(nOut / gVol * 100) / 100;
+    var gDens = v('g-dens'); $('g-dens-range').value = gDens;
+    var gIn = match ? nOut : Math.round(gDens * gVol), capMsg = '';
+    $('g-in-note').textContent = num(gDens, 2) + ' × ' + num(gVol, gVol % 1 ? 2 : 0) + ' ' + U;
+    if (!match && gVol > 0) {
+      var diff = nOut - gIn, needN = gIn / Math.max(0.01, v('n-sr') / 100) / Math.max(0.01, nVol);
+      if (diff > 0) capMsg += '<div class="alert alert-warning mt-2 mb-0 small"><i class="bx bx-error-circle me-2"></i>Nursery produces ' + int(nOut) + ' heads but grow-out takes ' + int(gIn) + '. ' + int(diff) + ' surplus juveniles are not in the revenue: sell them, add ' + Math.ceil(diff / Math.max(0.01, gDens) / gC.one) + ' grow-out cage(s) at this density, or lower nursery density to ' + num(needN, 1) + ' heads/' + U + '.</div>';
+      else if (diff < 0) {
+        capMsg += '<div class="alert alert-warning mt-2 mb-0 small"><i class="bx bx-error-circle me-2"></i>Grow-out needs ' + int(gIn) + ' heads but nursery produces only ' + int(nOut) + ' (short ' + int(-diff) + '). Raise nursery density to ' + num(needN, 1) + ' heads/' + U + ' or add a nursery cage.</div>';
+        gIn = nOut; $('g-in-note').textContent = 'Limited by nursery output · actual ' + num(gIn / gVol, 2) + ' heads/' + U;
+      }
+    }
+    $('g-in').textContent = int(gIn) + ' heads';
+    $('g-w0').textContent = v('n-tsize') + ' g';
+    gauge('g-gauge', gDens, sp.growout, sp);
+    if (gDens > sp.growout[1] * 1.2 && gVol > 0) {
+      var need = Math.ceil(gIn / sp.growout[1] / gC.one) - gC.count;
+      capMsg += '<div class="alert alert-danger mt-2 mb-0 small"><i class="bx bx-error-circle me-2"></i>Grow-out density ' + num(gDens, 1) + ' heads/' + U + ' is above the standard limit. ' +
+        (match ? (SANDBOX ? 'Increase quantity to ' + (gC.count + need) : 'Add ' + need + ' cage(s)') + ' to stay ≤ ' + sp.growout[1] + ' heads/' + U + '.' : 'Lower it to ≤ ' + sp.growout[1] + ' heads/' + U + '.') + '</div>';
+    }
+    $('g-capacity').innerHTML = capMsg;
+
+    /* cage availability against the plan windows */
+    if (!SANDBOX) {
+      renderCages('n-cages', 'n', [start, nEnd]); renderCages('g-cages', 'g', [nEnd, gEnd]);
+      var conf = [];
+      S.nCages.forEach(function (id) { var st = cageStatus(cageById(id), start, nEnd); if (st[0] === 'danger') conf.push(cageById(id).name + ' (Nursery): ' + st[1]); });
+      S.gCages.forEach(function (id) { var st = cageStatus(cageById(id), nEnd, gEnd); if (st[0] === 'danger') conf.push(cageById(id).name + ' (Grow-out): ' + st[1]); });
+      $('cage-conflict').innerHTML = conf.length ? '<div class="alert alert-danger small mb-0"><i class="bx bx-error me-2"></i>Selected cages are not free in the plan window:<ul class="mb-0 mt-1">' + conf.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul>Pick another cage or move the start date.</div>' : '';
+    } else $('cage-conflict').innerHTML = '';
+
+    /* size classes */
+    var totPct = S.classes.reduce(function (s, c) { return s + c.pct; }, 0);
+    var revenue = 0, harvestKg = 0, headsSum = 0, gFeedEst = 0;
+    R.rows = S.classes.map(function (c) {
+      var alloc = gIn * c.pct / 100, sr = Math.max(0, Math.min(100, c.sr));
+      var harvested = Math.round(alloc * sr / 100), kg = harvested * c.mbw / 1000;
+      var localP = c.local * (1 + pr.adj / 100), expP = c.expPrice * (1 + pr.adj / 100);
+      revenue += kg * (1 - c.exp / 100) * localP + kg * c.exp / 100 * expP;
+      gFeedEst += Math.max(0, kg - alloc * v('n-tsize') / 1000) * c.fcr * P.REF_PRICE.growout;
+      harvestKg += kg; headsSum += harvested;
+      return { alloc: alloc, harvested: harvested, kg: kg, localP: localP, date: D.add(nEnd, c.doc), sr: sr };
+    });
+    renderClasses();
+    var ok = Math.abs(totPct - 100) < 0.001;
+    $('alloc-total').className = 'badge ' + (ok ? 'bg-label-success' : 'bg-label-danger');
+    $('alloc-total').textContent = num(totPct) + '%' + (ok ? '' : ' (must be 100%)');
+    $('alloc-heads').textContent = int(headsSum); $('alloc-kg').textContent = num(harvestKg);
+    var warns = [];
+    S.classes.forEach(function (c, i) { if (c.mbw < c.min || c.mbw > c.max) warns.push('Size class ' + (i + 1) + ': target MBW ' + c.mbw + ' g is outside ' + c.min + '-' + c.max + ' g.'); });
+    S.classes.forEach(function (c, i) { S.classes.forEach(function (d2, j) { if (j > i && c.min < d2.max && d2.min < c.max) warns.push('Size classes ' + (i + 1) + ' and ' + (j + 1) + ' overlap.'); }); });
+    $('class-warn').innerHTML = warns.length ? '<div class="alert alert-danger small py-2 mb-0 mt-2">' + warns.join('<br>') + '</div>' : '';
+
+    /* feed: estimate until a current Feed Simulation exists */
+    var sig = JSON.stringify([nSeed, num(nVol), v('n-size'), v('n-tsize'), nDoc, v('n-sr'), gIn, num(gVol), S.classes.map(function (c) { return [c.pct, c.mbw, c.doc, c.sr]; })]);
+    var feedState = !S.feed ? 'none' : (S.feed.sig === sig ? 'current' : 'stale');
+    var nFeed = feedState === 'none' ? nGainKg * v('n-fcr') * P.REF_PRICE.nursery : S.feed.nurseryCost;
+    var gFeed = feedState === 'none' ? gFeedEst : S.feed.growCost;
+    var other = harvestKg * v('g-other');
+    var cost = seedCost + nFeed + gFeed + other;
+    var gp = revenue - cost, mPct = revenue > 0 ? gp / revenue : 0;
+    var be = harvestKg > 0 ? cost / harvestKg : 0, sug = be / (1 - margin);
+    var mCls = mPct >= margin ? 'success' : (mPct > 0 ? 'warning' : 'danger');
+
+    $('profit-warn').innerHTML = {
+      none: '<div class="alert alert-warning small"><i class="bx bx-error me-2"></i><strong>Nursery feed and Grow-out feed are estimates</strong> (FCR target × biomass gain × catalog reference price) and do not reflect the real feeding plan. Use <em>Save Draft and Generate Feed Simulation</em>.</div>',
+      stale: '<div class="alert alert-warning small"><i class="bx bx-error me-2"></i><strong>Inputs changed after ' + (S.feed ? S.feed.code : '') + '.</strong> Feed cost below comes from the old simulation. Generate the Feed Simulation again.</div>',
+      current: ''
+    }[feedState];
+    $('feed-status-text').innerHTML = feedState === 'none' ? 'Not generated yet. Feed cost below is an estimate.'
+      : feedState === 'stale' ? '<span class="text-warning fw-semibold">' + S.feed.code + ' is out of date. Generate again.</span>'
+        : '<span class="text-success"><i class="bx bx-check-circle"></i> ' + S.feed.code + ' · ' + num(S.feed.nurseryKg + S.feed.growKg) + ' kg feed</span>';
+    $('btn-generate').innerHTML = '<i class="bx bx-right-arrow-circle me-1"></i> ' + (feedState === 'current' ? 'Save Draft and Open Feed Simulation' : 'Save Draft and Generate Feed Simulation');
+    $('feed-banner').innerHTML = feedState === 'current' ? '<div class="alert alert-success border-0 shadow-sm"><i class="bx bx-check-circle me-2"></i>' + S.feed.code + ' applied. Nursery feed and Grow-out feed now come from the Feed Simulation. This plan can be saved as a baseline.</div>' : '';
+    $('draft-badge').textContent = S.code ? S.code + ' · Draft' : 'Unsaved';
+
+    var badge = feedState === 'current' ? '' : ' <span class="badge bg-label-warning"><i class="bx bx-error"></i> ' + (feedState === 'none' ? 'Estimate' : 'Out of date') + '</span>';
+    var feedSrc = function (ph) { return feedState === 'none' ? 'FCR target × gain × ' + idr(P.REF_PRICE[ph]) + '/kg (catalog reference)' : S.feed.code + ' · ' + num(ph === 'nursery' ? S.feed.nurseryKg : S.feed.growKg) + ' kg × price per feed size'; };
+    $('kpis').innerHTML = [
+      ['Revenue', idr(revenue), 'Local + export', ''],
+      ['Projected cost', idr(cost), 'Seed + feed + other direct' + badge, ''],
+      ['Gross profit', idr(gp), 'Revenue − cost', 'text-' + mCls],
+      ['Margin', num(mPct * 100) + '%', '<span class="badge bg-label-' + mCls + '">' + (mPct >= margin ? 'Meets target ' : 'Below target ') + (margin * 100) + '%</span>', 'text-' + mCls]
+    ].map(function (k) { return '<div class="col-sm-6 col-md-3"><span class="text-muted fs-7 d-block">' + k[0] + '</span><span class="fs-5 fw-bold font-monospace ' + k[3] + '">' + k[1] + '</span><span class="small text-muted d-block">' + k[2] + '</span></div>'; }).join('');
+    $('cost-body').innerHTML = [
+      ['Seed (nursery)', seedCost, 'Purchase average COGS/Seed'],
+      ['Nursery feed' + badge, nFeed, feedSrc('nursery')],
+      ['Grow-out feed' + badge, gFeed, feedSrc('growout')],
+      ['Other direct cost', other, 'Closed-out average IDR/kg'],
+      ['Break-even per kg', be, 'Projected cost ÷ harvest kg'],
+      ['Suggested price per kg', sug, 'Break-even ÷ (1 − target margin)']
+    ].map(function (r) { return '<tr><td>' + r[0] + '</td><td class="text-end font-monospace text-nowrap">' + idr(r[1]) + '</td><td class="text-muted small">' + r[2] + '</td></tr>'; }).join('');
+    $('price-body').innerHTML = R.rows.map(function (r, i) {
+      var c = S.classes[i], m = r.localP - be, st = r.localP >= sug ? ['success', 'Profit'] : (r.localP >= be ? ['warning', 'Below target'] : ['danger', 'Loss']);
+      return '<tr><td>' + c.min + '-' + c.max + ' g</td><td class="text-end font-monospace">' + idr(r.localP) + '</td><td class="text-end font-monospace">' + idr(be) + '</td><td class="text-end font-monospace">' + idr(sug) + '</td><td class="text-end font-monospace">' + idr(m) + '</td><td><span class="badge bg-label-' + st[0] + '">' + st[1] + '</span></td></tr>';
+    }).join('');
+    $('tech-kpis').innerHTML = [
+      ['Seed', int(nSeed) + ' heads'], ['Grow-out density', num(gDens, 1) + ' heads/' + U],
+      ['DOC', nDoc + ' + ' + S.classes.map(function (c) { return c.doc; }).join(' / ') + ' days'], ['Harvest', num(harvestKg) + ' kg']
+    ].map(function (k) { return '<div class="col-sm-6 col-md-3"><span class="text-muted fs-7 d-block">' + k[0] + '</span><span class="fs-5 fw-bold">' + k[1] + '</span></div>'; }).join('');
+
+    var valid = ok && !warns.length;
+    $('btn-save').classList.toggle('disabled', !(valid && feedState === 'current'));
+    $('btn-generate').disabled = !valid;
+    $('save-hint').innerHTML = !valid ? 'Fix the size classes first.' : feedState === 'current' ? '' : '<i class="bx bx-info-circle"></i> Save as baseline needs a current Feed Simulation.';
+
+    /* payload sent to Feed Simulation */
+    var fields = {}; FIELDS.forEach(function (k) { fields[k] = $(k).value; });
+    R.payload = {
+      plan: { fields: fields, sandbox: SANDBOX, match: match, preset: S.preset, nCages: S.nCages.slice(), gCages: S.gCages.slice(), classes: S.classes, code: S.code || 'PLAN-202611-0007' },
+      feed: S.feed, sig: sig, name: $('p-name').value, species: $('p-species').options[$('p-species').selectedIndex].text, start: start, unit: U,
+      cohorts: [{ key: 'nursery', name: 'Nursery · ' + (SANDBOX ? nC.count + ' sandbox cage(s)' : S.nCages.map(function (id) { return cageById(id).name; }).join(', ')), phase: 'Nursery', stocking: nSeed, area: Math.round(nVol * 100) / 100, w0: v('n-size'), w1: v('n-tsize'), days: nDoc, srEnd: v('n-sr'), offset: 0 }]
+        .concat(S.classes.map(function (c, i) {
+          return { key: 'c' + i, name: 'Grow-out · ' + c.min + '-' + c.max + ' g', phase: 'Grow-out', stocking: Math.round(R.rows[i].alloc), area: Math.round(gVol * c.pct) / 100, w0: v('n-tsize'), w1: c.mbw, days: c.doc, srEnd: R.rows[i].sr, offset: nDoc };
+        }))
+    };
+    AqMock.applyRole();
+  }
+
+  $('btn-add-class').addEventListener('click', function () {
+    var l = S.classes[S.classes.length - 1] || { max: 400, doc: 120, sr0: 88, fcr: 1.7, local: 60000, expPrice: 95000 };
+    S.classes.push({ min: l.max, max: l.max + 50, mbw: l.max + 25, pct: 0, doc: l.doc + 15, sr0: l.sr0 - 2, sr: l.sr0 - 2, fcr: Math.round((l.fcr + 0.05) * 100) / 100, local: l.local + 10000, exp: 0, expPrice: l.expPrice + 10000 });
+    calc();
+  });
+  $('btn-balance').addEventListener('click', function () {
+    var tot = S.classes.reduce(function (s, c) { return s + c.pct; }, 0);
+    if (!tot) { S.classes.forEach(function (c) { c.pct = 1; }); tot = S.classes.length; }
+    S.classes.forEach(function (c) { c.pct = Math.round(c.pct / tot * 10000) / 100; });
+    var diff = Math.round((100 - S.classes.reduce(function (s, c) { return s + c.pct; }, 0)) * 100) / 100;
+    var big = S.classes.reduce(function (a, c) { return c.pct > a.pct ? c : a; }, S.classes[0]);
+    big.pct = Math.round((big.pct + diff) * 100) / 100;
+    calc();
+  });
+  document.querySelectorAll('[data-preset]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      S.preset = b.dataset.preset;
+      S.classes.forEach(function (c) { c.sr = Math.max(0, Math.min(100, c.sr0 + PRESETS[S.preset].sr)); });
+      calc();
+    });
+  });
+  FIELDS.filter(function (id) { return id !== 'g-dens'; }).concat(['mode-infra', 'mode-sandbox']).forEach(function (id) { $(id).addEventListener('change', calc); if ($(id).type !== 'date') $(id).addEventListener('input', calc); });
+  $('g-dens').addEventListener('input', function () { $('g-match').checked = false; calc(); });
+  $('g-dens-range').addEventListener('input', function () { $('g-match').checked = false; $('g-dens').value = this.value; calc(); });
+  $('g-match').addEventListener('change', calc);
+  $('btn-draft').addEventListener('click', function () { S.code = S.code || 'PLAN-202611-0007'; calc(); $('save-hint').innerHTML = '<span class="text-success"><i class="bx bx-check-circle"></i> Draft ' + S.code + ' saved.</span>'; });
+  $('btn-generate').addEventListener('click', function () {
+    S.code = S.code || 'PLAN-202611-0007'; calc();
+    location.href = 'feed-simulation.html?d=' + P.encode(R.payload) + '#plan';
+  });
+  calc();
+
+  /* baseline show */
+  $('bl-res').innerHTML = P.BASELINE.reservations.map(function (r) {
+    var st = r.conflict
+      ? '<span class="badge bg-label-danger"><i class="bx bx-error"></i> Conflict</span> <span class="small">' + r.conflict.ref + ' until ' + D.fmt(r.conflict.until) + ' · alert sent 26 Nov 2026</span>'
+      : '<span class="badge bg-label-success">Free</span>';
+    return '<tr><td>' + r.cage + '</td><td>' + r.phase + '</td><td>' + D.fmt(r.from) + ' - ' + D.fmt(r.until) + '</td><td>' + st + '</td></tr>';
+  }).join('');
+  $('bl-history').innerHTML = [
+    ['Cage conflict on Cage 2 (LOB-04), alert sent to Alert Center', 'System', '26 Nov 2026, 06:00'],
+    ['Linked to Batch 2 (Pompano), status Active, locked', 'Ops Manager', '18 Nov 2026, 09:12'],
+    ['FS-202611-0002 applied, saved as baseline', 'Ops Manager', '18 Nov 2026, 09:05'],
+    ['Saved as draft', 'Management', '15 Nov 2026, 16:40']
+  ].map(function (h) {
+    return '<div class="border-start border-2 border-primary-subtle ps-3 pb-3 position-relative"><span class="position-absolute top-0 start-0 translate-middle bg-primary rounded-circle" style="width:10px;height:10px;margin-left:-1px"></span><div class="fw-bold text-dark">' + h[0] + '</div><div class="text-muted small"><i class="bx bx-user me-1"></i>' + h[1] + '</div><div class="text-muted small mt-1"><i class="bx bx-time me-1"></i>' + h[2] + '</div></div>';
+  }).join('');
+})();
+</script>
+</body>
+</html>

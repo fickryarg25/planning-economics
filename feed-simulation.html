@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feed Simulation · AquaOps Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/vendor/fonts/boxicons.css">
+<link rel="stylesheet" href="assets/vendor/css/core.css">
+<link rel="stylesheet" href="assets/vendor/css/theme-default.css">
+<link rel="stylesheet" href="assets/css/demo.css">
+<link rel="stylesheet" href="css/aquaops-theme.css">
+<style>
+.grid-wrap{max-height:520px;overflow:auto}
+.grid-wrap thead th{position:sticky;top:0;background:#fff;z-index:1}
+.grid-wrap input,.grid-wrap select{min-width:70px;padding:.2rem .4rem;font-size:.8125rem}
+.grid-wrap select{min-width:140px}
+.grid-wrap .edited{background:#fff6e0}
+.locked{background:#f5f5f9 !important}
+.price-in{width:110px}
+</style>
+</head>
+<body>
+<div id="mock-content" class="d-none">
+
+<div class="alert alert-danger border-0 shadow-sm" data-roles="field_team"><i class="bx bx-block me-2"></i>Field Team has no access to Feed Simulation. This menu is hidden from their sidebar.</div>
+
+<div data-hide-roles="field_team">
+
+<!-- ===================== LIST ===================== -->
+<div id="screen-plans">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">Feed Simulations</h4>
+    <a href="feed-simulation.html#plan" class="btn btn-primary" data-roles="super_admin ops_manager"><i class="bx bx-plus me-1"></i> New simulation</a>
+  </div>
+  <div class="card mb-4">
+    <div class="card-body">
+      <p class="fw-bold">Filter :</p>
+      <form class="row g-3" onsubmit="return false">
+        <div class="col-md"><select class="form-select" aria-label="Commodity"><option>Any commodity</option><option>Fish</option><option>Lobster</option></select></div>
+        <div class="col-md"><select class="form-select" aria-label="Source"><option>Any source</option><option>From Planning</option><option>Manual</option></select></div>
+        <div class="col-md"><input type="text" class="form-control" placeholder="Simulation name"></div>
+        <div class="col-md d-flex"><button class="btn btn-outline-primary w-100 me-2">Filter</button><button class="btn btn-outline-danger">Clear</button></div>
+      </form>
+    </div>
+  </div>
+  <div class="card">
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead><tr><th>Code</th><th>Name</th><th>Species</th><th>Source</th><th>Start</th><th class="text-end">Cohorts</th><th class="text-end">Total feed (kg)</th><th class="text-end">Feed cost</th><th></th></tr></thead>
+        <tbody>
+          <tr><td id="l-code">-</td><td id="l-name">-</td><td>Bawal bintang</td><td id="l-src">-</td><td id="l-start">-</td><td class="text-end" id="l-coh">-</td><td class="text-end" id="l-kg">-</td><td class="text-end font-monospace" id="l-cost">-</td><td><a href="#plan" class="btn btn-sm btn-outline-primary">View</a></td></tr>
+          <tr><td>FS-202611-0002</td><td>Batch 2 Pompano two-phase</td><td>Bawal bintang</td><td><span class="badge bg-label-primary">PLAN-202611-0004</span></td><td>01 Dec 2026</td><td class="text-end">5</td><td class="text-end">11786.99</td><td class="text-end font-monospace">IDR 254.809.974,69</td><td><a href="#plan" class="btn btn-sm btn-outline-primary">View</a></td></tr>
+          <tr><td>FS-202611-0003</td><td>Kerapu cantang</td><td>Kerapu cantang</td><td><span class="badge bg-label-primary">PLAN-202611-0005</span></td><td>10 Jan 2027</td><td class="text-end">3</td><td class="text-end">2,915.40</td><td class="text-end font-monospace">IDR 64.138.800,00</td><td><a href="#plan" class="btn btn-sm btn-outline-primary">View</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card-body small text-muted">Showing 1 to 3 of 3 results · sample data</div>
+  </div>
+</div>
+
+<!-- ===================== PLAN ===================== -->
+<div id="screen-plan" class="d-none">
+  <div class="d-flex align-items-center justify-content-between mb-4 gap-2 flex-wrap">
+    <div>
+      <h4 class="fw-bold mb-1" id="sim-title"></h4>
+      <p class="text-muted small mb-0" id="sim-sub"></p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="#plans" class="btn btn-outline-secondary btn-sm"><i class="bx bx-arrow-back me-1"></i> Back</a>
+      <button class="btn btn-outline-primary btn-sm"><i class="bx bx-download me-1"></i> Export Excel</button>
+      <button class="btn btn-primary btn-sm from-plan" data-back><i class="bx bx-left-arrow-circle me-1"></i> Back to Commodity Planning &amp; Save as Baseline</button>
+    </div>
+  </div>
+  <div class="alert alert-info border-0 small from-plan"><i class="bx bx-link me-2"></i><span id="plan-link-text"></span></div>
+  <div class="alert alert-secondary border-0 small" data-roles="management analyst"><i class="bx bx-show me-2"></i>View only. Only Super Admin and Ops Manager can change regimes and daily feed.</div>
+
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-body p-4">
+      <h6 class="fw-bold text-primary mb-3 d-flex align-items-center"><i class="bx bx-info-circle me-2 fs-5"></i> Simulation Header</h6>
+      <div class="row g-3">
+        <div class="col-md-3"><label class="form-label fw-semibold" for="ph-name">Name</label><input id="ph-name" type="text" class="form-control"></div>
+        <div class="col-md-3"><label class="form-label fw-semibold" for="ph-sp">Species</label><input id="ph-sp" type="text" class="form-control"></div>
+        <div class="col-md-3"><label class="form-label fw-semibold" for="ph-start">Start date</label><input id="ph-start" type="date" class="form-control"></div>
+        <div class="col-md-3"><label class="form-label fw-semibold" for="ph-site">Site</label><select id="ph-site" class="form-select"><option>Ekas</option></select></div>
+      </div>
+    </div>
+  </div>
+
+  <ul class="nav nav-tabs mb-0 flex-nowrap overflow-auto" id="cage-tabs"></ul>
+  <div class="card border-0 shadow-sm mb-4 rounded-top-0">
+    <div class="card-body p-4" id="cage-pane"></div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<script src="assets/mock/shell.js"></script>
+<script src="assets/mock/planning-data.js"></script>
+<script>
+AqMock.init({ active: 'feed', title: 'Feed Intelligence · Feed Simulation Planning', branches: 'feature/feed-actual-lines + feature/28-feed-inventory-ledger (feed catalog, bag_weight_kg)' });
+AqMock.screens(['plans', 'plan'], 'plan');
+
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var int = AqMock.int, num = AqMock.num, idr = AqMock.idr, P = AqPlan, D = AqPlan.date;
+  var FEEDS = { 'Megami GR-1': 20, 'Megami GR-2': 25, 'Megami GR-3': 25, 'Megami GR-4': 25, 'Megami GR-5': 25, 'Megami GR-7': 25, 'Megami GR-10': 25, 'Megami GR-12': 25 };
+  var REGIMES = { 'Full': 0, '-10% EM4': 0.10, '-20% EM4': 0.20, 'GR + PN': 0.05, 'Fresh Fish': 0 };
+  // Grow-out brackets from the BRD; nursery brackets are sample values
+  var GROW = [[25, 30, 'Megami GR-2', 5], [30, 50, 'Megami GR-3', 5], [50, 70, 'Megami GR-4', 5], [70, 110, 'Megami GR-5', 4.5], [110, 210, 'Megami GR-7', 3.5], [210, 360, 'Megami GR-10', 3], [360, 9999, 'Megami GR-12', 3]];
+  var NURS = [[3, 12, 'Megami GR-1', 8], [12, 25, 'Megami GR-2', 6], [25, 50, 'Megami GR-3', 5], [50, 9999, 'Megami GR-4', 5]];
+  var prices = JSON.parse(JSON.stringify(P.FEED_PRICE));
+
+  /* source: from Commodity Planning (read-only fields) or a manual sample */
+  var payload = P.decode();
+  var fromPlan = !!(payload && payload.cohorts);
+  if (!fromPlan) {
+    payload = { name: 'Pompano manual test', species: 'Bawal bintang (Trachinotus blochii)', start: '2026-12-01', cohorts: [
+      { key: 'm1', name: 'Cage 8', phase: 'Grow-out', stocking: 2160, area: 48, w0: 25, w1: 500, days: 154, srEnd: 97, offset: 0 },
+      { key: 'm2', name: 'Cage 9', phase: 'Grow-out', stocking: 2160, area: 48, w0: 25, w1: 500, days: 154, srEnd: 97, offset: 0 }
+    ] };
+  }
+  var code = fromPlan && payload.feed ? payload.feed.code : 'FS-202611-0004';
+  var cages = payload.cohorts.map(function (c) { return Object.assign({ regime: 'Full', ov: {}, locked: fromPlan }, c); });
+  var active = 0, open = {};
+
+  function bracket(c, mbw) {
+    var b = c.phase === 'Nursery' ? NURS : GROW;
+    for (var i = 0; i < b.length; i++) if (mbw < b[i][1]) return b[i];
+    return b[b.length - 1];
+  }
+  function simulate(c) {
+    var rows = [], cum = 0, red = REGIMES[c.regime];
+    for (var d = 1; d <= c.days; d++) {
+      var o = c.ov[d] || {};
+      var mbw = o.mbw !== undefined ? o.mbw : c.w0 + (c.w1 - c.w0) * (d - 1) / Math.max(1, c.days - 1);
+      var sr = o.sr !== undefined ? o.sr : 100 - (100 - c.srEnd) * d / c.days;
+      var br = bracket(c, mbw);
+      var rate = o.rate !== undefined ? o.rate : br[3];
+      var feed = o.feed || br[2];
+      var pop = Math.round(c.stocking * sr / 100), bio = pop * mbw / 1000, kg = bio * rate / 100 * (1 - red);
+      cum += kg;
+      var gain = bio - c.stocking * c.w0 / 1000;
+      rows.push({ d: d, mbw: mbw, sr: sr, rate: rate, feed: feed, pop: pop, bio: bio, kg: kg, cum: cum, fcr: gain > 0 ? cum / gain : null, edited: !!c.ov[d] });
+    }
+    return rows;
+  }
+  function byFeed(c) { var by = {}; simulate(c).forEach(function (r) { by[r.feed] = (by[r.feed] || 0) + r.kg; }); return by; }
+  function costOf(by) { return Object.keys(by).reduce(function (s, f) { return s + by[f] * (prices[f] || 0); }, 0); }
+  function canEdit() { return ['super_admin', 'ops_manager'].indexOf(AqMock.role()) > -1; }
+
+  function tabs() {
+    var t = cages.map(function (c, i) {
+      return '<li class="nav-item"><a class="nav-link text-nowrap' + (i === active ? ' active' : '') + '" href="#plan" data-tab="' + i + '"><i class="bx ' + (c.phase === 'Nursery' ? 'bx-cube' : 'bx-shape-square') + ' me-1"></i>' + c.name + '</a></li>';
+    });
+    t.push('<li class="nav-item"><a class="nav-link text-nowrap' + (active === cages.length ? ' active' : '') + '" href="#plan" data-tab="' + cages.length + '"><i class="bx bx-cart me-1"></i>Procurement</a></li>');
+    t.push('<li class="nav-item"><a class="nav-link text-nowrap' + (active === cages.length + 1 ? ' active' : '') + '" href="#plan" data-tab="' + (cages.length + 1) + '"><i class="bx bx-bar-chart-alt-2 me-1"></i>Compare cages</a></li>');
+    $('cage-tabs').innerHTML = t.join('');
+    $('cage-tabs').querySelectorAll('[data-tab]').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); active = +a.dataset.tab; render(); }); });
+  }
+
+  function field(label, key, c, step, unit) {
+    var lock = c.locked;
+    return '<div class="col-6 col-md-2"><label class="form-label fw-semibold" for="cf-' + key + '">' + label + (lock ? ' <i class="bx bx-lock-alt text-muted" title="From Commodity Planning"></i>' : '') + '</label>' +
+      '<input id="cf-' + key + '" type="number" step="' + (step || 1) + '" class="form-control' + (lock ? ' locked' : ' edit') + '" value="' + c[key] + '" data-key="' + key + '"' + (lock ? ' readonly' : '') + '>' +
+      (unit ? '<div class="form-text">' + unit + '</div>' : '') + '</div>';
+  }
+
+  function renderCage(c) {
+    var rows = simulate(c), last = rows[rows.length - 1] || { cum: 0, pop: 0, bio: 0, fcr: null };
+    var src = c.phase === 'Nursery' ? { w0: 'Seed size', w1: 'Transfer size', days: 'Nursery DOC', sr: 'Nursery SR' } : { w0: 'Nursery transfer size', w1: 'Size class target MBW', days: 'Size class DOC', sr: 'Size class SR' };
+    var html = '<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2"><h6 class="fw-bold text-primary mb-0 d-flex align-items-center"><i class="bx bx-cube me-2 fs-5"></i> Cage Header · ' + c.name + ' <span class="badge bg-label-secondary ms-2">' + c.phase + '</span></h6>' +
+      '<div class="d-flex gap-2 edit-only">' + (c.locked ? '' : '<button class="btn btn-sm btn-outline-primary" id="c-dup"><i class="bx bx-copy me-1"></i> Duplicate cage</button>') +
+      '<button class="btn btn-sm btn-outline-danger" id="c-reset"' + (Object.keys(c.ov).length ? '' : ' disabled') + '><i class="bx bx-reset me-1"></i> Reset grid edits</button></div></div>' +
+      (c.locked ? '<p class="small text-muted"><i class="bx bx-lock-alt me-1"></i>Fields with a lock come from Commodity Planning and are read-only here. Change them in the plan, then generate again. Feeding regime stays editable.</p>' : '') +
+      '<div class="row g-3">' +
+      field('Stocking (heads)', 'stocking', c, 1, c.locked ? (c.phase === 'Nursery' ? 'Seed needed' : 'Heads stocked × allocation') : '') +
+      field('Area (' + (payload.unit || 'm³') + ')', 'area', c, 0.01, c.locked ? (c.phase === 'Nursery' ? 'Nursery cages' : 'Grow-out cages × allocation') : '') +
+      field('Start MBW (g)', 'w0', c, 1, c.locked ? src.w0 : '') + field('End MBW (g)', 'w1', c, 1, c.locked ? src.w1 : '') +
+      field('Duration (days)', 'days', c, 1, c.locked ? src.days : '') + field('SR at end (%)', 'srEnd', c, 0.5, c.locked ? src.sr : '') +
+      '<div class="col-md-3"><label class="form-label fw-semibold" for="cf-regime">Feeding regime</label><select id="cf-regime" class="form-select edit" data-key="regime">' + Object.keys(REGIMES).map(function (k) { return '<option' + (k === c.regime ? ' selected' : '') + '>' + k + '</option>'; }).join('') + '</select><div class="form-text">Feed reduction ' + (REGIMES[c.regime] * 100) + '%</div></div>' +
+      '<div class="col-md-3"><span class="form-label fw-semibold d-block">Density</span><span class="fs-5 fw-bold">' + (c.area ? num(c.stocking / c.area, 1) : '-') + ' heads/' + (payload.unit || 'm³') + '</span></div>' +
+      '<div class="col-md-3"><span class="form-label fw-semibold d-block">Period</span><span class="fw-semibold">' + D.fmt(D.add(payload.start, c.offset || 0)) + ' - ' + D.fmt(D.add(payload.start, (c.offset || 0) + c.days - 1)) + '</span></div>' +
+      '</div><hr class="my-4 opacity-25">' +
+      '<div class="row g-3 mb-3">' +
+      [['Total feed', num(last.cum) + ' kg'], ['End population', int(last.pop) + ' heads'], ['End biomass', num(last.bio) + ' kg'], ['FCR', last.fcr ? last.fcr.toFixed(2) : '-']].map(function (k) {
+        return '<div class="col-6 col-md-3"><span class="text-muted fs-7 d-block">' + k[0] + '</span><span class="fs-5 fw-bold">' + k[1] + '</span></div>';
+      }).join('') + '</div>' +
+      '<h6 class="fw-bold text-primary mb-2 d-flex align-items-center"><i class="bx bx-table me-2 fs-5"></i> Daily Grid</h6>' +
+      '<p class="small text-muted">' + (c.locked ? 'Feed rate and Feed are editable per day. SR and MBW follow the plan.' : 'SR, Feed rate, Feed and MBW are editable.') + ' Feed/day = biomass × rate × (1 − regime reduction). Edited rows are highlighted.</p>' +
+      '<div class="grid-wrap border rounded"><table class="table table-sm mb-0 text-nowrap"><thead><tr><th>DOC</th><th>Date</th><th>SR %</th><th>Population</th><th>MBW (g)</th><th>Biomass (kg)</th><th>Feed rate %</th><th>Feed</th><th class="text-end">Feed/day (kg)</th><th class="text-end">Cumulative (kg)</th><th class="text-end">FCR</th></tr></thead><tbody>';
+    var ed = canEdit(), dis = ed ? '' : ' disabled', lockDis = (c.locked || !ed) ? ' disabled' : '';
+    rows.forEach(function (r) {
+      html += '<tr' + (r.edited ? ' class="edited"' : '') + '><td>' + r.d + '</td><td class="text-muted">' + D.fmt(D.add(payload.start, (c.offset || 0) + r.d - 1)).slice(0, 6) + '</td>' +
+        '<td><input type="number" step="0.1" class="form-control form-control-sm" value="' + r.sr.toFixed(1) + '" data-d="' + r.d + '" data-f="sr"' + lockDis + ' aria-label="SR day ' + r.d + '"></td>' +
+        '<td>' + int(r.pop) + '</td>' +
+        '<td><input type="number" step="0.1" class="form-control form-control-sm" value="' + r.mbw.toFixed(1) + '" data-d="' + r.d + '" data-f="mbw"' + lockDis + ' aria-label="MBW day ' + r.d + '"></td>' +
+        '<td>' + r.bio.toFixed(2) + '</td>' +
+        '<td><input type="number" step="0.1" class="form-control form-control-sm" value="' + r.rate + '" data-d="' + r.d + '" data-f="rate"' + dis + ' aria-label="Feed rate day ' + r.d + '"></td>' +
+        '<td><select class="form-select form-select-sm" data-d="' + r.d + '" data-f="feed"' + dis + ' aria-label="Feed day ' + r.d + '">' + Object.keys(FEEDS).map(function (f) { return '<option' + (f === r.feed ? ' selected' : '') + '>' + f + '</option>'; }).join('') + '</select></td>' +
+        '<td class="text-end">' + r.kg.toFixed(2) + '</td><td class="text-end">' + r.cum.toFixed(2) + '</td><td class="text-end">' + (r.fcr ? r.fcr.toFixed(2) : '-') + '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+    $('cage-pane').innerHTML = html;
+
+    $('cage-pane').querySelectorAll('[data-key]').forEach(function (el) {
+      el.addEventListener('change', function () { var k = el.dataset.key; c[k] = k === 'regime' ? el.value : (parseFloat(el.value) || 0); render(); });
+    });
+    $('cage-pane').querySelectorAll('[data-d]').forEach(function (el) {
+      el.addEventListener('change', function () {
+        var d = +el.dataset.d; c.ov[d] = c.ov[d] || {};
+        c.ov[d][el.dataset.f] = el.dataset.f === 'feed' ? el.value : parseFloat(el.value);
+        var sc = $('cage-pane').querySelector('.grid-wrap').scrollTop;
+        render();
+        var g = $('cage-pane').querySelector('.grid-wrap'); if (g) g.scrollTop = sc;
+      });
+    });
+    if ($('c-dup')) $('c-dup').onclick = function () { var n = JSON.parse(JSON.stringify(c)); n.key = 'm' + Date.now(); n.name = 'Cage ' + (10 + cages.length); cages.push(n); active = cages.length - 1; render(); };
+    $('c-reset').onclick = function () { c.ov = {}; render(); };
+  }
+
+  function procurement() {
+    var by = {};
+    cages.forEach(function (c) {
+      var t = byFeed(c);
+      Object.keys(t).forEach(function (f) { by[f] = by[f] || { n: 0, g: 0 }; by[f][c.phase === 'Nursery' ? 'n' : 'g'] += t[f]; });
+    });
+    return Object.keys(FEEDS).filter(function (f) { return by[f]; }).map(function (f) {
+      var kg = by[f].n + by[f].g;
+      return { feed: f, n: by[f].n, g: by[f].g, kg: kg, bag: FEEDS[f], exact: kg / FEEDS[f], ceil: Math.ceil(kg / FEEDS[f]), price: prices[f] || 0 };
+    });
+  }
+
+  function results() {
+    var nKg = 0, nCost = 0, gKg = 0, gCost = 0, byClass = [];
+    cages.forEach(function (c) {
+      var by = byFeed(c), kg = Object.keys(by).reduce(function (s, f) { return s + by[f]; }, 0), cost = costOf(by);
+      var rows = simulate(c), last = rows[rows.length - 1];
+      if (c.phase === 'Nursery') { nKg += kg; nCost += cost; } else { gKg += kg; gCost += cost; }
+      var m = /^c(\d+)$/.exec(c.key); if (m) byClass[+m[1]] = { kg: kg, cost: cost, fcr: last && last.fcr ? Math.round(last.fcr * 100) / 100 : null };
+    });
+    return { code: code, nurseryKg: nKg, nurseryCost: nCost, growKg: gKg, growCost: gCost, byClass: byClass, sig: payload.sig };
+  }
+
+  function renderProc() {
+    var p = procurement(), tk = 0, tb = 0, tc = 0, tv = 0;
+    var body = p.map(function (r) {
+      var cost = r.kg * r.price, val = r.ceil * r.bag * r.price;
+      tk += r.kg; tb += r.ceil; tc += cost; tv += val;
+      return '<tr><td>' + r.feed + '</td><td class="text-end">' + r.bag + ' kg</td><td class="text-end">' + num(r.n) + '</td><td class="text-end">' + num(r.g) + '</td><td class="text-end fw-semibold">' + num(r.kg) + '</td><td class="text-end">' + r.exact.toFixed(2) + '</td><td class="text-end fw-bold">' + int(r.ceil) + '</td>' +
+        '<td><input type="number" class="form-control form-control-sm price-in font-monospace edit" value="' + r.price + '" data-price="' + r.feed + '" aria-label="Price per kg ' + r.feed + '"></td>' +
+        '<td class="text-end font-monospace">' + idr(cost) + '</td><td class="text-end font-monospace">' + idr(val) + '</td></tr>';
+    }).join('');
+    var res = results();
+    $('cage-pane').innerHTML = '<h6 class="fw-bold text-primary mb-3 d-flex align-items-center"><i class="bx bx-cart me-2 fs-5"></i> Consolidated Procurement · ' + cages.length + ' cohorts</h6>' +
+      '<div class="table-responsive"><table class="table text-nowrap"><thead><tr><th>Feed size</th><th class="text-end">Bag</th><th class="text-end">Nursery (kg)</th><th class="text-end">Grow-out (kg)</th><th class="text-end">Total (kg)</th><th class="text-end">Bags (exact)</th><th class="text-end">Bags to buy</th><th>Price (IDR/kg)</th><th class="text-end">Feed cost (kg × price)</th><th class="text-end">Purchase value (bags)</th></tr></thead><tbody>' + body +
+      '</tbody><tfoot><tr class="fw-semibold"><td>Total</td><td></td><td class="text-end">' + num(res.nurseryKg) + '</td><td class="text-end">' + num(res.growKg) + '</td><td class="text-end">' + num(tk) + '</td><td></td><td class="text-end">' + int(tb) + '</td><td></td><td class="text-end font-monospace">' + idr(tc) + '</td><td class="text-end font-monospace">' + idr(tv) + '</td></tr></tfoot></table></div>' +
+      '<div class="alert alert-secondary small"><i class="bx bx-info-circle me-2"></i>Price per feed size is typed manually in this mockup. Later the Feed Catalog module becomes the source of this price table. Bag size comes from the Feeds catalog (<code>bag_weight_kg</code>); bags are rounded up per feed size. Warehouse stock is not deducted here.</div>' +
+      '<div class="row g-3 mb-3">' +
+      [['Nursery feed cost', idr(res.nurseryCost), num(res.nurseryKg) + ' kg'], ['Grow-out feed cost', idr(res.growCost), num(res.growKg) + ' kg'], ['Total feed cost', idr(tc), 'Sent to Commodity Planning']].map(function (k) {
+        return '<div class="col-md-4"><div class="border rounded-3 p-3 h-100"><span class="text-muted fs-7 d-block">' + k[0] + '</span><span class="fs-5 fw-bold font-monospace">' + k[1] + '</span><span class="small text-muted d-block">' + k[2] + '</span></div></div>';
+      }).join('') + '</div>' +
+      '<div class="d-flex flex-wrap gap-2 justify-content-end">' +
+      '<button class="btn btn-outline-primary edit-only"><i class="bx bx-receipt me-1"></i> Create purchase draft</button>' +
+      (fromPlan ? '<button class="btn btn-primary" data-back><i class="bx bx-left-arrow-circle me-1"></i> Back to Commodity Planning &amp; Save as Baseline</button>' : '') + '</div>';
+    $('cage-pane').querySelectorAll('[data-price]').forEach(function (el) { el.addEventListener('change', function () { prices[el.dataset.price] = parseFloat(el.value) || 0; render(); }); });
+  }
+
+  function renderCompare() {
+    $('cage-pane').innerHTML = '<h6 class="fw-bold text-primary mb-3 d-flex align-items-center"><i class="bx bx-bar-chart-alt-2 me-2 fs-5"></i> Compare cages</h6><div class="row g-3">' +
+      cages.map(function (c, i) {
+        var r = simulate(c), l = r[r.length - 1] || {}, by = byFeed(c), isOpen = !!open[c.key];
+        var detail = Object.keys(FEEDS).filter(function (f) { return by[f]; }).map(function (f) {
+          return '<tr><td class="text-nowrap">' + f.replace('Megami ', '') + '</td><td class="text-end">' + num(by[f]) + '</td><td class="text-end">' + Math.ceil(by[f] / FEEDS[f]) + '</td><td class="text-end font-monospace small text-nowrap">' + idr(by[f] * (prices[f] || 0)) + '</td></tr>';
+        }).join('');
+        return '<div class="col-md-6 col-xl-4"><div class="card border shadow-none h-100"><div class="card-body">' +
+          '<div class="d-flex justify-content-between mb-2 gap-2"><span class="fw-bold">' + c.name + '</span><span class="badge bg-label-secondary">' + c.regime + '</span></div>' +
+          [['Phase', c.phase], ['Stocking', int(c.stocking) + ' heads'], ['Days', c.days], ['MBW', c.w0 + ' → ' + c.w1 + ' g']].map(function (k) {
+            return '<div class="d-flex justify-content-between small border-bottom py-1"><span class="text-muted">' + k[0] + '</span><span class="fw-semibold">' + k[1] + '</span></div>';
+          }).join('') +
+          '<div class="d-flex justify-content-between align-items-center small border-bottom py-1"><span class="text-muted">Total feed</span><span class="fw-semibold">' + num(l.cum || 0) + ' kg <button type="button" class="btn btn-sm btn-icon btn-text-primary p-0 ms-1" data-toggle="' + c.key + '" aria-expanded="' + isOpen + '" aria-label="Show feed size allocation"><i class="bx ' + (isOpen ? 'bx-chevron-up' : 'bx-chevron-down') + '"></i></button></span></div>' +
+          (isOpen ? '<div class="bg-light rounded p-2 my-2"><div class="small fw-semibold mb-1">Feed size allocation</div><table class="table table-sm mb-0 small"><thead><tr><th>Feed</th><th class="text-end">kg</th><th class="text-end">Bags</th><th class="text-end">Cost</th></tr></thead><tbody>' + detail + '</tbody></table></div>' : '') +
+          [['End biomass', num(l.bio || 0) + ' kg'], ['FCR', l.fcr ? l.fcr.toFixed(2) : '-'], ['Feed cost', '<span class="font-monospace">' + idr(costOf(by)) + '</span>']].map(function (k) {
+            return '<div class="d-flex justify-content-between small border-bottom py-1"><span class="text-muted">' + k[0] + '</span><span class="fw-semibold">' + k[1] + '</span></div>';
+          }).join('') + '</div></div></div>';
+      }).join('') + '</div>' +
+      '<div class="mt-3 d-flex gap-2"><button class="btn btn-sm btn-outline-primary" id="exp-all"><i class="bx bx-expand-vertical me-1"></i> Expand all</button><button class="btn btn-sm btn-outline-primary" id="col-all"><i class="bx bx-collapse-vertical me-1"></i> Collapse all</button></div>';
+    $('cage-pane').querySelectorAll('[data-toggle]').forEach(function (b) { b.addEventListener('click', function () { open[b.dataset.toggle] = !open[b.dataset.toggle]; render(); }); });
+    $('exp-all').onclick = function () { cages.forEach(function (c) { open[c.key] = true; }); render(); };
+    $('col-all').onclick = function () { open = {}; render(); };
+  }
+
+  function goBack() {
+    var out = { plan: payload.plan, feed: results() };
+    location.href = 'planning-calculator.html?d=' + P.encode(out) + '#calculator';
+  }
+
+  function render() {
+    tabs();
+    if (active < cages.length) renderCage(cages[active]);
+    else if (active === cages.length) renderProc();
+    else renderCompare();
+    var res = results();
+    $('l-code').textContent = code; $('l-name').textContent = payload.name; $('l-start').textContent = D.fmt(payload.start);
+    $('l-src').innerHTML = fromPlan ? '<span class="badge bg-label-primary">' + payload.plan.code + ' (draft)</span>' : '<span class="badge bg-label-secondary">Manual</span>';
+    $('l-coh').textContent = cages.length; $('l-kg').textContent = num(res.nurseryKg + res.growKg); $('l-cost').textContent = idr(res.nurseryCost + res.growCost);
+    var ed = canEdit();
+    document.querySelectorAll('.edit').forEach(function (el) { el.disabled = !ed; });
+    document.querySelectorAll('.edit-only').forEach(function (el) { el.classList.toggle('d-none', !ed); });
+    document.querySelectorAll('.from-plan').forEach(function (el) { el.classList.toggle('d-none', !fromPlan); });
+    document.querySelectorAll('[data-back]').forEach(function (b) { b.onclick = goBack; });
+  }
+
+  /* header */
+  $('sim-title').textContent = code + ' · ' + payload.name;
+  $('sim-sub').textContent = fromPlan ? 'Generated from Commodity Planning. Nursery plus one grow-out cohort per size class.' : 'Manual simulation. Change any cell and the figures recalculate.';
+  $('ph-name').value = payload.name; $('ph-sp').value = payload.species; $('ph-start').value = payload.start;
+  if (fromPlan) {
+    ['ph-name', 'ph-sp', 'ph-start'].forEach(function (id) { $(id).readOnly = true; $(id).classList.add('locked'); });
+    $('ph-site').disabled = true;
+    $('plan-link-text').innerHTML = 'Linked to <strong>' + payload.plan.code + '</strong> (draft). Stocking, area, MBW, duration and SR come from the plan. Go back to apply the feed cost and save the baseline.';
+  } else { $('ph-sp').readOnly = true; }
+  document.addEventListener('mock:role', render);
+  render();
+})();
+</script>
+</body>
+</html>

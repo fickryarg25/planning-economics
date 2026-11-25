@@ -1,0 +1,118 @@
+/* AquaOps Color Palette — overrides Sneat theme defaults */
+
+:root {
+  --bs-primary: #149786;
+  --bs-primary-rgb: 20, 151, 134;
+  --bs-primary-bg-subtle: #E0F2F1;
+
+  /* Layout */
+  --aq-bg-sidebar: #042B2F;
+  --aq-bg-app: #F3F7F8;
+  --aq-brand-primary: #149786;
+  --aq-text-primary: #1E293B;
+  --aq-text-secondary: #64748B;
+
+  /* Status */
+  --aq-success: #10B981;
+  --aq-info: #0EA5E9;
+  --aq-warning: #F59E0B;
+  --aq-danger: #EF4444;
+}
+
+/* Sidebar — dark theme */
+.bg-menu-theme {
+  background-color: var(--aq-bg-sidebar) !important;
+  color: var(--aq-text-secondary);
+}
+
+.bg-menu-theme .menu-link {
+  color: var(--aq-text-secondary) !important;
+}
+
+.bg-menu-theme .menu-link:hover {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.bg-menu-theme .menu-item.active > .menu-link {
+  color: var(--aq-brand-primary) !important;
+  background-color: rgba(20, 151, 134, 0.16) !important;
+}
+
+.bg-menu-theme .menu-item.active:before {
+  background: var(--aq-brand-primary) !important;
+}
+
+.bg-menu-theme .menu-header {
+  color: var(--aq-text-secondary) !important;
+}
+
+.bg-menu-theme .app-brand-text {
+  color: var(--aq-brand-primary) !important;
+}
+
+/* Primary color override for buttons, links, etc. */
+a {
+  color: var(--aq-brand-primary);
+}
+
+.btn-primary {
+  background-color: var(--aq-brand-primary) !important;
+  border-color: var(--aq-brand-primary) !important;
+}
+
+.btn-outline-primary {
+  color: var(--aq-brand-primary) !important;
+  border-color: var(--aq-brand-primary) !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--aq-brand-primary) !important;
+  color: #fff !important;
+}
+
+.bg-primary {
+  background-color: var(--aq-brand-primary) !important;
+}
+
+.text-primary {
+  color: var(--aq-brand-primary) !important;
+}
+
+.bg-label-primary {
+  background-color: rgba(20, 151, 134, 0.16) !important;
+  color: var(--aq-brand-primary) !important;
+}
+
+/* Badge / status colors */
+.bg-label-success {
+  background-color: #D1FAE5 !important;
+  color: var(--aq-success) !important;
+}
+
+.bg-label-info {
+  background-color: #E0F2FE !important;
+  color: var(--aq-info) !important;
+}
+
+.bg-label-warning {
+  background-color: #FEF3C7 !important;
+  color: var(--aq-warning) !important;
+}
+
+.bg-label-danger {
+  background-color: #FEE2E2 !important;
+  color: var(--aq-danger) !important;
+}
+
+/* Commodity color classes — for use in commodity badges/filters */
+.commodity-seaweed  { color: #27C499; }
+.commodity-oyster   { color: #06B6D4; }
+.commodity-fish     { color: #F59E0B; }
+.commodity-lobster  { color: #0F5156; }
+
+/* Navbar commodity pills */
+.navbar-nav .btn-primary,
+.navbar-nav .btn.btn-sm.btn-primary {
+  background-color: var(--aq-brand-primary) !important;
+  border-color: var(--aq-brand-primary) !important;
+}
